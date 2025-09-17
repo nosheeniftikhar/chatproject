@@ -406,7 +406,28 @@
                 <img src="logo2.png" alt="Chatying logo" style="width: 40px; height: 40px; margin-right: 8px;">
                 <span style="font-weight: bold; font-size: 1.3rem; color: white;">Chatying</span>
             </a>
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav ms-auto d-flex align-items-center">
+                <!-- User Information Display -->
+                <div class="user-info-display d-flex align-items-center me-4">
+                    <div class="user-details me-3">
+                        <span class="user-id-display fw-bold" id="userIdDisplay">ID: Loading...</span>
+                        <span class="mx-2">|</span>
+                        <span class="user-age-display" id="userAgeDisplay">Age: --</span>
+                        <span class="mx-2">|</span>
+                        <span class="user-location-display" id="userLocationDisplay">Location: --</span>
+                    </div>
+                    <div class="online-status d-flex align-items-center me-3">
+                        <span class="status-indicator online" id="statusIndicator"></span>
+                        <span class="status-text" id="statusText">Online</span>
+                    </div>
+                    <!-- Message Notifications -->
+                    <div class="message-notifications me-3" id="messageNotifications" style="display: none;">
+                        <button class="btn btn-outline-light position-relative" onclick="showMessages()">
+                            <i class="fas fa-envelope"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="messageCount">0</span>
+                        </button>
+                    </div>
+                </div>
                 <a class="nav-link" href="#" onclick="logout()" aria-label="Log Out">Logout</a>
             </div>
         </div>
@@ -488,12 +509,7 @@
                     </div>
                 </div>
                 <div class="col-md-9 text-md-end text-center">
-                    <a href="about.html" aria-label="About Chatying">About Us</a>
-                    <a href="privacy.html" aria-label="Chatying Privacy Policy">Privacy Policy</a>
-                    <a href="terms.html" aria-label="Chatying Terms of Service">Terms of Service</a>
-                    <a href="contact.html" aria-label="Contact Chatying">Contact</a>
-                    <a href="help.html" aria-label="Chatying Help">Help</a>
-                    <a href="safety.html" aria-label="Chatying Safety Guidelines">Safety Guidelines</a>
+                    <!-- Navigation links removed for logged-in users -->
                 </div>
             </div>
             <div class="row mt-4">
