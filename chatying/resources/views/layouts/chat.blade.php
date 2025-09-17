@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Chatying - Free Chat Rooms, Connect Online Without Registration')</title>
     
     <!-- SEO Meta Tags -->
@@ -183,10 +184,10 @@
     <nav class="navbar navbar-expand-lg" aria-label="Main navigation">
         <div class="container">
             <!-- Left: Logo + Chatying text -->
-            <div class="navbar-brand d-flex align-items-center me-4">
+            <a href="{{ route('home') }}" class="navbar-brand d-flex align-items-center me-4" style="text-decoration: none;">
                 <img src="{{ asset('images/logo2.png') }}" alt="Chatying logo" style="width: 48px; height: 48px; margin-right: 8px;">
                 <span style="font-weight: bold; font-size: 1.5rem;">Chatying</span>
-            </div>
+            </a>
             <!-- Center/Right: Nav links spaced out -->
             <div class="d-flex flex-grow-1 justify-content-end align-items-center">
                 <a href="{{ route('about') }}" aria-label="About Chatying" style="margin: 0 18px;color: var(--white);">About Us</a>
@@ -207,10 +208,10 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-3">
-                    <div class="footer-logo">
+                    <a href="{{ route('home') }}" class="footer-logo" style="text-decoration: none;">
                         <img src="{{ asset('images/logo2.png') }}" alt="Chatying footer logo" style="width: 80px; height: 80px;">
                         Chatying
-                    </div>
+                    </a>
                 </div>
                 <div class="col-md-9 text-md-end text-center">
                     <a href="{{ route('about') }}" aria-label="About Chatying" style="margin: 0 18px;">About Us</a>
