@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatying - Free Online Chat Room</title>
+    <meta name="description" content="Join Chatying's free online chat room to connect with authentic users worldwide. Chat, share media, and meet new people securely.">
+    <meta name="keywords" content="online chat, free chat room, Chatying, social chat, meet new people, chat online, media sharing">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Chatying">
+    <meta name="publisher" content="Chatying">
+    <meta http-equiv="content-language" content="en">
+    <!-- Open Graph Tags for Social Media -->
+    <meta property="og:title" content="Chatying - Free Online Chat Room">
+    <meta property="og:description" content="Connect with authentic users worldwide in Chatying's free chat room. Share text, images, videos, and more securely.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.chatying.com/chat">
+    <meta property="og:image" content="https://www.chatying.com/images/logo.png">
+    <meta property="og:site_name" content="Chatying">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Chatying - Free Online Chat Room">
+    <meta name="twitter:description" content="Join Chatying to chat and share media with users worldwide in a secure, free online chat room.">
+    <meta name="twitter:image" content="https://www.chatying.com/images/logo.png">
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.chatying.com/chat">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <!-- DNS Prefetch for Performance -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #2C3E50; /* Soft navy blue */
+            --secondary: #3498DB; /* Vibrant blue for accents */
+            --background: #F4F7FA; /* Light background */
+            --white: #FFFFFF;
+            --text: #34495E; /* Darker text for readability */
+            --accent: #E74C3C; /* Red accent for buttons */
+        }
+        
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .bg-custom {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .navbar {
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--white) !important;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+        
+        .navbar-nav .nav-link {
+            color: var(--white) !important;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: var(--accent) !important;
+            transform: translateY(-2px);
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - 70px - 100px - 60px); /* Adjust for navbar, ad space, and footer */
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--white);
+            border-right: 1px solid #dee2e6;
+            padding: 1rem;
+            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .user-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .user-list li {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-list li:hover {
+            background-color: #E8ECEF;
+            transform: translateX(5px);
+        }
+        
+        .user-list li.active {
+            background-color: var(--secondary);
+            color: var(--white);
+        }
+        
+        .user-list .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #2ECC71;
+            margin-right: 0.5rem;
+        }
+        
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--white);
+            border-radius: 12px;
+            margin: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            background-color: var(--primary);
+            color: var(--white);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .call-buttons button {
+            margin-left: 10px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #F9FAFB;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+        
+        .chat-messages.empty {
+            color: #6B7280;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message.sent {
+            align-items: flex-end;
+        }
+        
+        .message.received {
+            align-items: flex-start;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .message.sent .message-content {
+            background-color: var(--secondary);
+            color: var(--white);
+        }
+        
+        .message.received .message-content {
+            background-color: #E8ECEF;
+            color: var(--text);
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #6B7280;
+            margin-top: 0.2rem;
+        }
+        
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            background-color: var(--white);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        
+        .chat-input form {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-input input[type="text"] {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-right: 0.5rem;
+        }
+        
+        .media-buttons {
+            display: flex;
+            align-items: center;
+            margin-right: 0.5rem;
+        }
+        
+        .media-buttons label {
+            cursor: pointer;
+            margin: 0 0.3rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        
+        .media-buttons label:hover {
+            color: var(--accent);
+        }
+        
+        .media-buttons input {
+            display: none;
+        }
+        
+        .chat-input button {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            background-color: #C0392B;
+            border-color: #C0392B;
+            transform: translateY(-2px);
+        }
+        
+        .ad-space {
+            height: 100px;
+            background-color: #E8ECEF;
+            border: 1px solid #dee2e6;
+            margin: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        footer {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-content {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .regonly {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .vipImageList {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .vipImageList li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        
+        .modal_list {
+            margin-right: 0.75rem;
+            color: var(--secondary);
+        }
+        
+        .age_modal_actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        .confirm_decline {
+            margin: 0 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .confirm_decline.agree {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .confirm_decline.disagree {
+            background-color: #7F8C8D;
+            border-color: #7F8C8D;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+            }
+            
+            .chat-container {
+                flex-direction: column;
+            }
+            
+            .chat-area {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .media-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .media-buttons label {
+                font-size: 1rem;
+            }
+            
+            .ad-space {
+                margin: 0.5rem;
+                height: 80px;
+            }
+            
+            footer {
+                font-size: 0.8rem;
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-custom" role="navigation" aria-label="Main navigation">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html" aria-label="Chatying Home">
+                <img src="logo2.png" alt="Chatying logo" style="width: 40px; height: 40px; margin-right: 8px;">
+                <span style="font-weight: bold; font-size: 1.3rem; color: white;">Chatying</span>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#" onclick="logout()" aria-label="Log Out">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="chat-container">
+            <!-- Sidebar: Online Users -->
+            <section class="sidebar" aria-label="Online Users">
+                <h3>Online Users</h3>
+                <ul class="user-list" id="userList"></ul>
+            </section>
+            
+            <!-- Chat Area -->
+            <section class="chat-area" aria-label="Chat Window">
+                <div class="chat-header" id="chatHeader">
+            <h3 id="chatTitle">Select a user to start chatting</h3>
+            <div class="call-buttons">
+                <button class="btn btn-success" onclick="startAudioCall()"><i class="fas fa-phone"></i></button>
+                <button class="btn btn-info" onclick="startVideoCall()"><i class="fas fa-video"></i></button>
+            </div>
+        </div>
+                <div class="chat-messages empty" id="chatMessages" aria-live="polite">
+                    <p>Please select a user from the sidebar to begin a conversation.</p>
+                </div>
+                <div class="chat-input" id="chatInput" style="display: none;">
+                    <form id="chatForm" onsubmit="sendMessage(event)" aria-label="Chat Input Form">
+                        <div class="media-buttons">
+                            <label for="imageInput" title="Send Image" aria-label="Upload Image"><i class="fas fa-image"></i></label>
+                            <input type="file" id="imageInput" accept="image/*" aria-hidden="true">
+                            <label for="fileInput" title="Send File" aria-label="Upload File"><i class="fas fa-file"></i></label>
+                            <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" aria-hidden="true">
+                            <label for="videoInput" title="Send Video" aria-label="Upload Video"><i class="fas fa-video"></i></label>
+                            <input type="file" id="videoInput" accept="video/*" aria-hidden="true">
+                            <button type="button" id="voiceRecord" class="btn btn-link" style="color: var(--primary); font-size: 1.2rem; transition: color 0.3s ease;" aria-label="Record Voice Note"><i class="fas fa-microphone"></i></button>
+                        </div>
+                        <input type="text" id="messageInput" placeholder="Type a message..." required aria-label="Type your message">
+                        <button type="submit" class="btn btn-primary" aria-label="Send Message">Send</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space" aria-hidden="true"></div>
+    </main>
+
+    <!-- Call Modal -->
+    <div class="modal fade" id="callModal" tabindex="-1" aria-labelledby="callModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="callModalLabel">Call in Progress</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="callStatus"></div>
+                    <div id="videoContainer" style="display: none; background: #000; padding: 1rem; border-radius: 8px;">
+                        <video id="localVideo" autoplay muted style="width: 150px; position: absolute; top: 1.5rem; right: 1.5rem; border: 2px solid var(--white); border-radius: 8px;"></video>
+                        <video id="remoteVideo" autoplay style="width: 100%; border-radius: 8px;"></video>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-danger btn-lg" data-bs-dismiss="modal" aria-label="Hang Up"><i class="fas fa-phone-slash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" aria-label="Footer navigation">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <div class="footer-logo">
+                        <img src="logo2.png" alt="Chatying footer logo" style="width: 40px; height: 40px;">
+                        Chatying
+                    </div>
+                </div>
+                <div class="col-md-9 text-md-end text-center">
+                    <a href="about.html" aria-label="About Chatying">About Us</a>
+                    <a href="privacy.html" aria-label="Chatying Privacy Policy">Privacy Policy</a>
+                    <a href="terms.html" aria-label="Chatying Terms of Service">Terms of Service</a>
+                    <a href="contact.html" aria-label="Contact Chatying">Contact</a>
+                    <a href="help.html" aria-label="Chatying Help">Help</a>
+                    <a href="safety.html" aria-label="Chatying Safety Guidelines">Safety Guidelines</a>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <small>&copy; 2025 Chatying. All rights reserved. | Free chat rooms for everyone.</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Mock fetching online users (replace with real API call in production)
+        async function fetchOnlineUsers() {
+            // Simulated API response
+            const mockUsers = [
+                { id: 1, username: 'Alice', gender: 'female', age: 25, state: 'California', country: 'USA' },
+                { id: 2, username: 'Bob', gender: 'male', age: 30, state: 'New York', country: 'USA' },
+                { id: 3, username: 'Charlie', gender: 'male', age: 28, state: 'London', country: 'UK' },
+                { id: 4, username: 'Diana', gender: 'female', age: 22, state: 'Paris', country: 'France' },
+                { id: 5, username: 'Eve', gender: 'female', age: 27, state: 'Tokyo', country: 'Japan' }
+            ];
+            // Replace with actual API call, e.g., fetch('/api/users')
+            return mockUsers;
+        }
+
+        // Populate online users
+        async function populateUsers() {
+            const userList = document.getElementById('userList');
+            const users = await fetchOnlineUsers();
+            userList.innerHTML = '';
+            users.forEach(user => {
+                const li = document.createElement('li');
+                let iconColor = '#3498DB'; // default blue
+                if (user.gender === 'female') iconColor = '#E75480'; // pink
+                li.style.flexDirection = 'column';
+                li.style.alignItems = 'flex-start';
+                li.innerHTML = `
+                    <div>
+                        <span class="status-dot" aria-label="Online"></span>
+                        <i class="fas fa-user" style="margin-right:6px;color:${iconColor};"></i>
+                        ${user.username}
+                    </div>
+                    <small style="margin-left: 20px; font-size: 0.8em; color: #6c757d;">${user.age}, ${user.state}, ${user.country}</small>`;
+                li.dataset.userId = user.id;
+                li.setAttribute('role', 'button');
+                li.setAttribute('aria-label', `Chat with ${user.username}`);
+                li.addEventListener('click', () => selectUser(user));
+                userList.appendChild(li);
+            });
+        }
+
+        // Handle user selection
+        function selectUser(user) {
+            document.querySelectorAll('.user-list li').forEach(u => u.classList.remove('active'));
+            const selectedLi = document.querySelector(`.user-list li[data-user-id="${user.id}"]`);
+            selectedLi.classList.add('active');
+            document.getElementById('chatTitle').textContent = `Chatting with ${user.username}`;
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.classList.remove('empty');
+            chatMessages.innerHTML = '';
+            document.getElementById('chatInput').style.display = 'block';
+            window.selectedChatUser = user;
+            window.selectedChatUserOnline = true;
+        }
+
+        // Show modal after a short delay
+        if (!sessionStorage.getItem('agreedToTerms')) {
+            setTimeout(() => {
+                const modalHtml = `
+                    <div class="modal fade" id="agreementModal" tabindex="-1" aria-labelledby="agreementModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="agreementModalLabel">Terms and Conditions</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="regonly">By using this website you agree to:</p>
+                                    <ul class="vipImageList">
+                                        <li>
+                                            <i class="fas fa-check-circle modal_list"></i>
+                                            <p>You are over the age of 18</p>
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-check-circle modal_list"></i>
+                                            <p>You've read & approved our <a href="/welcome/terms_of_service" target="_blank">Terms of use</a></p>
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-check-circle modal_list"></i>
+                                            <p>You've read & approved our <a href="/user/privacy_policy">Privacy policy</a></p>
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-check-circle modal_list"></i>
+                                            <p>You've read & approved our <a href="/welcome/safety" target="_blank">Safety</a></p>
+                                        </li>
+                                    </ul>
+                                    <div class="age_modal_actions">
+                                        <button class="btn btn-primary confirm_decline agree" data-value="1" aria-label="Agree to Terms">Agree</button>
+                                        <button class="btn btn-secondary confirm_decline disagree" data-value="0" aria-label="Disagree to Terms">Disagree</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                const modal = new bootstrap.Modal(document.getElementById('agreementModal'), { backdrop: 'static', keyboard: false });
+                modal.show();
+                document.querySelectorAll('.confirm_decline').forEach(button => {
+                    button.addEventListener('click', () => {
+                        if (button.dataset.value === '1') {
+                            console.log('User agreed to terms.');
+                            sessionStorage.setItem('agreedToTerms', 'true');
+                            modal.hide();
+                            populateUsers(); // Load users after agreeing
+                        } else {
+                            console.log('User disagreed to terms.');
+                            modal.hide();
+                            window.location.href = 'index.html'; // Redirect to homepage
+                        }
+                        modal._element.addEventListener('hidden.bs.modal', () => {
+                            modal._element.remove();
+                        });
+                    });
+                });
+            }, 500);
+        } else {
+            // Already agreed in this session, just populate users
+            populateUsers();
+        }
+
+        // Send text message
+        function sendMessage(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sent');
+                // Determine user online status
+                let isOnline = window.selectedChatUserOnline !== false;
+                let tickHtml = '';
+                let statusMsg = '';
+                if (isOnline) {
+                    // Gray tick for delivered, will turn green when seen (by recipient action)
+                    tickHtml = '<span class="tick" style="color:gray;margin-left:8px;">&#10003;</span>';
+                } else {
+                    // Single tick for offline
+                    tickHtml = '<span class="tick" style="color:#888;margin-left:8px;">&#10003;</span>';
+                    statusMsg = '<div style="color:#888;font-size:0.9em;margin-top:2px;">User logged out or not available online</div>';
+                }
+                messageDiv.innerHTML = `
+                    <div class="message-content">${messageText}${tickHtml}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Karachi' })}</div>
+                    ${statusMsg}
+                `;
+                chatMessages.appendChild(messageDiv);
+                messageInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                // Store reference for 'seen' simulation
+                if (isOnline) {
+                    window.lastSentMessageDiv = messageDiv;
+                }
+            }
+        }
+
+        // Handle media uploads (mock)
+        function handleMediaUpload(event, type) {
+            const file = event.target.files[0];
+            if (file) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sent');
+                messageDiv.innerHTML = `
+                    <div class="message-content">[${type} sent: ${file.name}]</div>
+                    <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Karachi' })}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                event.target.value = ''; // Reset input
+            }
+        }
+
+        document.getElementById('imageInput').addEventListener('change', (e) => handleMediaUpload(e, 'Image'));
+        document.getElementById('fileInput').addEventListener('change', (e) => handleMediaUpload(e, 'File'));
+        document.getElementById('videoInput').addEventListener('change', (e) => handleMediaUpload(e, 'Video'));
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        async function toggleRecording() {
+            const recordButton = document.getElementById('voiceRecord');
+            if (!isRecording) {
+                // Start recording
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.start();
+                        isRecording = true;
+                        recordButton.innerHTML = '<i class="fas fa-stop"></i>';
+                        recordButton.style.color = 'red';
+
+                        mediaRecorder.ondataavailable = event => {
+                            audioChunks.push(event.data);
+                        };
+
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                            const audioUrl = URL.createObjectURL(audioBlob);
+                            
+                            const chatMessages = document.getElementById('chatMessages');
+                            const messageDiv = document.createElement('div');
+                            messageDiv.classList.add('message', 'sent');
+                            let isOnline = window.selectedChatUserOnline !== false;
+                            let tickHtml = '';
+                            if (isOnline) {
+                                tickHtml = '<span class="tick" style="color:white;margin-left:8px;">&#10003;</span>';
+                            } else {
+                                tickHtml = '<span class="tick" style="color:red;margin-left:8px;">&#10003;</span>';
+                            }
+                            messageDiv.innerHTML = `
+                                <div class="message-content">
+                                    <audio controls src="${audioUrl}"></audio>
+                                    ${tickHtml}
+                                </div>
+                                <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Karachi' })}</div>
+                            `;
+                            chatMessages.appendChild(messageDiv);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                            if (isOnline) {
+                                window.lastSentMessageDiv = messageDiv;
+                            }
+
+                            audioChunks = [];
+                            stream.getTracks().forEach(track => track.stop());
+                        };
+                    } catch (error) {
+                        console.error('Error accessing media devices.', error);
+                        alert('Error accessing media devices. Please check your microphone permissions.');
+                    }
+                } else {
+                    alert('Your browser does not support voice recording.');
+                }
+            } else {
+                // Stop recording
+                mediaRecorder.stop();
+                isRecording = false;
+                recordButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                recordButton.style.color = 'var(--primary)';
+            }
+        }
+
+        document.getElementById('voiceRecord').addEventListener('click', toggleRecording);
+
+        // Profile and logout placeholders
+        // Simulate recipient seeing the message (for demo only)
+        // In a real app, this would be triggered by the recipient actually viewing the message
+        document.getElementById('chatMessages').addEventListener('click', function() {
+            if (window.lastSentMessageDiv) {
+                const tick = window.lastSentMessageDiv.querySelector('.tick');
+                if (tick && tick.style.color === 'white') {
+                    tick.style.color = 'green';
+                }
+            }
+        });
+        function showProfile() {
+            alert('Profile - This is a demo. In a real implementation, this would show the user profile.');
+        }
+
+        function logout() {
+            // Optionally show a message, then redirect
+            // alert('Logged out - This is a demo. In a real implementation, this would handle session logout.');
+            window.selectedChatUserOnline = false;
+            window.location.href = 'index.html';
+        }
+
+        function startAudioCall() {
+            if (!window.selectedChatUser) {
+                alert('Please select a user to call.');
+                return;
+            }
+            const callModal = new bootstrap.Modal(document.getElementById('callModal'));
+            document.getElementById('callStatus').textContent = `Audio call with ${window.selectedChatUser.username}...`;
+            document.getElementById('videoContainer').style.display = 'none';
+
+            // Get user media
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        // Store stream to stop it later
+                        window.localStream = stream;
+                        callModal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error accessing media devices.', error);
+                        alert('Error accessing media devices. Please check your microphone permissions.');
+                    });
+            } else {
+                alert('Your browser does not support audio calls.');
+            }
+        }
+
+        function startVideoCall() {
+            if (!window.selectedChatUser) {
+                alert('Please select a user to call.');
+                return;
+            }
+            const callModal = new bootstrap.Modal(document.getElementById('callModal'));
+            document.getElementById('callStatus').textContent = `Video call with ${window.selectedChatUser.username}...`;
+            document.getElementById('videoContainer').style.display = 'block';
+            
+            // Get user media
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                    .then(stream => {
+                        const localVideo = document.getElementById('localVideo');
+                        localVideo.srcObject = stream;
+                        window.localStream = stream;
+                        callModal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error accessing media devices.', error);
+                        alert('Error accessing media devices. Please check your camera and microphone permissions.');
+                    });
+            } else {
+                alert('Your browser does not support video calls.');
+            }
+        }
+
+        // Stop stream when modal is closed
+        document.getElementById('callModal').addEventListener('hidden.bs.modal', () => {
+            if (window.localStream) {
+                window.localStream.getTracks().forEach(track => track.stop());
+                window.localStream = null;
+            }
+            const localVideo = document.getElementById('localVideo');
+            localVideo.srcObject = null;
+        });
+
+        // --- Auto logout after 20 minutes of inactivity ---
+        let inactivityTimeout;
+        const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 minutes in ms
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(() => {
+                // Auto logout and redirect to homepage
+                window.location.href = 'index.html';
+            }, INACTIVITY_LIMIT);
+        }
+
+        // Reset timer on user activity
+        ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'].forEach(evt => {
+            window.addEventListener(evt, resetInactivityTimer, true);
+        });
+        // Start timer on page load
+        resetInactivityTimer();
+    // (removed stray closing brace)
+    </script>
+    
+</body>
+</html>
