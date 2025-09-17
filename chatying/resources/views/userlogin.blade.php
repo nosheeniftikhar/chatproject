@@ -1107,6 +1107,7 @@
         let currentCall = null;
         let isMuted = false;
         let isVideoEnabled = false;
+        let recordingStartTime = 0;
         
         // Real audio/video call functions
         async function startAudioCall() {
@@ -1277,18 +1278,30 @@
                         const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
                         const audioUrl = URL.createObjectURL(audioBlob);
                         
+                        // Calculate recording duration (approximate)
+                        const recordingDuration = Math.round((Date.now() - recordingStartTime) / 1000);
+                        
                         // Add voice message to chat
                         const chatMessages = document.getElementById('chatMessages');
+                        chatMessages.classList.remove('empty');
+                        
                         const messageDiv = document.createElement('div');
                         messageDiv.classList.add('message', 'sent');
                         messageDiv.innerHTML = `
                             <div class="message-content">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-microphone"></i>
-                                    <audio controls style="max-width: 200px;">
-                                        <source src="${audioUrl}" type="audio/webm">
-                                        Your browser does not support the audio element.
-                                    </audio>
+                                <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 200px;">
+                                    <i class="fas fa-microphone" style="color: #fff; font-size: 1.1rem;"></i>
+                                    <div style="flex: 1;">
+                                        <audio controls style="width: 100%; max-width: 220px; height: 35px;" preload="metadata">
+                                            <source src="${audioUrl}" type="audio/webm">
+                                            <source src="${audioUrl}" type="audio/ogg">
+                                            <source src="${audioUrl}" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.8); margin-top: 2px;">
+                                            Voice message (${recordingDuration}s)
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
@@ -1296,11 +1309,28 @@
                         chatMessages.appendChild(messageDiv);
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                         
+                        // Store the audio URL reference to prevent garbage collection
+                        if (!window.audioUrls) window.audioUrls = [];
+                        window.audioUrls.push(audioUrl);
+                        
                         // Stop all tracks
                         stream.getTracks().forEach(track => track.stop());
+                        
+                        // Optional: Add auto-reply for demo (you can remove this if not needed)
+                        setTimeout(() => {
+                            const replyDiv = document.createElement('div');
+                            replyDiv.classList.add('message', 'received');
+                            replyDiv.innerHTML = `
+                                <div class="message-content">Nice voice message! I heard you clearly.</div>
+                                <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                            `;
+                            chatMessages.appendChild(replyDiv);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }, 2000);
                     };
                     
                     mediaRecorder.start();
+                    recordingStartTime = Date.now();
                     isRecording = true;
                     voiceBtn.classList.add('recording');
                     voiceBtn.title = 'Stop Recording';
