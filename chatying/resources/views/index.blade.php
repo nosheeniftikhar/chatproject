@@ -494,29 +494,46 @@
             <div class="col-md-4">
                 <section class="form-section" aria-labelledby="chat-form-heading">
                     <h2 id="chat-form-heading">Start Chatting Now</h2>
-                    <form id="chatForm" aria-label="Chatying join form">
+                    @if(session('error'))
+                        <div class="alert alert-danger" role="alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                    @if(session('success'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    <form id="chatForm" action="{{ route('chat.enter') }}" method="POST" aria-label="Chatying join form">
+                        @csrf
                         <div class="mb-3">
                             <label for="nickname" class="form-label">Choose a Nickname</label>
-                            <input type="text" class="form-control" id="nickname" placeholder="Enter your nickname" required aria-describedby="nicknameHelp">
+                            <input type="text" class="form-control @error('nickname') is-invalid @enderror" id="nickname" name="nickname" placeholder="Enter your nickname" value="{{ old('nickname') }}" required aria-describedby="nicknameHelp">
                             <div id="nicknameHelp" class="form-text">Your nickname is how others will see you in the chat.</div>
+                            @error('nickname')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="gender" class="form-label">Gender</label>
-                            <select class="form-select" id="gender" required aria-describedby="genderHelp">
+                            <select class="form-select @error('gender') is-invalid @enderror" id="gender" name="gender" required aria-describedby="genderHelp">
                                 <option value="">Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
+                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
                             </select>
                             <div id="genderHelp" class="form-text">Select your gender to personalize your chat experience.</div>
+                            @error('gender')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="age" class="form-label">Age</label>
-                            <select class="form-select" id="age" required aria-describedby="ageHelp">
+                            <select class="form-select @error('age') is-invalid @enderror" id="age" name="age" required aria-describedby="ageHelp">
                                 <option value="">Select Age</option>
-                                <option value="18">18</option>
-                                <option value="19">19</option>
-                                <option value="20">20</option>
+                                <option value="18" {{ old('age') == '18' ? 'selected' : '' }}>18</option>
+                                <option value="19" {{ old('age') == '19' ? 'selected' : '' }}>19</option>
+                                <option value="20" {{ old('age') == '20' ? 'selected' : '' }}>20</option>
                                 <option value="21">21</option>
                                 <option value="22">22</option>
                                 <option value="23">23</option>
@@ -598,10 +615,13 @@
                                 <option value="99">99</option>
                             </select>
                             <div id="ageHelp" class="form-text">You must be 18 or older to join.</div>
+                            @error('age')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="country" class="form-label">Country</label>
-                            <select class="form-select" id="country" required onchange="populateStates()" aria-describedby="countryHelp">
+                            <select class="form-select @error('country') is-invalid @enderror" id="country" name="country" required onchange="populateStates()" aria-describedby="countryHelp">
                                 <option value="">Select Country</option>
                                 <option value="Afghanistan">Afghanistan</option>
                                 <option value="Albania">Albania</option>
@@ -800,15 +820,21 @@
                                 <option value="Zimbabwe">Zimbabwe</option>
                             </select>
                             <div id="countryHelp" class="form-text">Select your country to connect with local users.</div>
+                            @error('country')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3" id="stateContainer" style="display: none;">
                             <label for="state" class="form-label">State/Province</label>
-                            <select class="form-select" id="state" aria-describedby="stateHelp">
+                            <select class="form-select @error('state') is-invalid @enderror" id="state" name="state" aria-describedby="stateHelp">
                                 <option value="">Select State/Province</option>
                             </select>
                             <div id="stateHelp" class="form-text">Select your state or province, if applicable.</div>
+                            @error('state')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <button type="submit" class="btn btn-primary w-100" onclick="startChat(event)">Enter Chat Room</button>
+                        <button type="submit" class="btn btn-primary w-100">Enter Chat Room</button>
                     </form>
                 </section>
             </div>
@@ -928,22 +954,7 @@
         updateTime();
         setInterval(updateTime, 1000);
 
-        // Chat form submission
-        function startChat(event) {
-            event.preventDefault();
-            const nickname = document.getElementById('nickname').value;
-            const gender = document.getElementById('gender').value;
-            const age = document.getElementById('age').value;
-            const country = document.getElementById('country').value;
-            const state = document.getElementById('state').value;
-
-            if (nickname && gender && age && country) {
-                // Save nickname to session storage
-                sessionStorage.setItem('nickname', nickname);
-                // Redirect in the same tab to chat room
-                window.location.href = "{{ route('chat.room') }}";
-            }
-        }
+        // Note: Form now submits directly to Laravel backend - no need for JavaScript submission
 
         // Navigation functions
         function showLogin() {
@@ -1089,6 +1100,18 @@
                     case 'Canada':
                         states = ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'];
                         break;
+                    case 'Central African Republic':
+                        states = ['Bamingui-Bangoran', 'Bangui', 'Basse-Kotto', 'Haute-Kotto', 'Haut-Mbomou', 'Kémo', 'Lobaye', 'Mambéré-Kadéï', 'Mbomou', 'Nana-Grébizi', 'Nana-Mambéré', 'Ombella-Mpoko', 'Ouaka', 'Ouham', 'Ouham-Pendé', 'Sangha-Mbaéré', 'Vakaga'];
+                        break;
+                    case 'Chad':
+                        states = ['Bahr el Gazel', 'Batha', 'Borkou', 'Chari-Baguirmi', 'Ennedi-Est', 'Ennedi-Ouest', 'Guéra', 'Hadjer-Lamis', 'Kanem', 'Lac', 'Logone Occidental', 'Logone Oriental', 'Mandoul', 'Mayo-Kebbi Est', 'Mayo-Kebbi Ouest', 'Moyen-Chari', 'N\'Djamena', 'Ouaddaï', 'Salamat', 'Sila', 'Tandjilé', 'Tibesti', 'Wadi Fira'];
+                        break;
+                    case 'Chile':
+                        states = ['Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 'Valparaíso', 'Región Metropolitana de Santiago', 'Libertador General Bernardo O\'Higgins', 'Maule', 'Ñuble', 'Biobío', 'Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén del General Carlos Ibáñez del Campo', 'Magallanes y de la Antártica Chilena'];
+                        break;
+                    case 'Colombia':
+                        states = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada', 'Bogotá D.C.'];
+                        break;
                     case 'United States':
                         states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
                         break;
@@ -1118,6 +1141,453 @@
                         break;
                     case 'Mexico':
                         states = ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Mexico City', 'Mexico State', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'];
+                        break;
+                    case 'Comoros':
+                        states = ['Anjouan', 'Grande Comore', 'Mohéli'];
+                        break;
+                    case 'Congo, Democratic Republic of the':
+                        states = ['Bas-Uele', 'Équateur', 'Haut-Katanga', 'Haut-Lomami', 'Haut-Uele', 'Ituri', 'Kasaï', 'Kasaï-Central', 'Kasaï-Oriental', 'Kinshasa', 'Kongo Central', 'Kwango', 'Kwilu', 'Lomami', 'Lualaba', 'Mai-Ndombe', 'Maniema', 'Mongala', 'Nord-Kivu', 'Nord-Ubangi', 'Sankuru', 'Sud-Kivu', 'Sud-Ubangi', 'Tanganyika', 'Tshopo', 'Tshuapa'];
+                        break;
+                    case 'Congo, Republic of the':
+                        states = ['Bouenza', 'Cuvette', 'Cuvette-Ouest', 'Kouilou', 'Lékoumou', 'Likouala', 'Niari', 'Plateaux', 'Pool', 'Sangha', 'Brazzaville', 'Pointe-Noire'];
+                        break;
+                    case 'Costa Rica':
+                        states = ['Alajuela', 'Cartago', 'Guanacaste', 'Heredia', 'Limón', 'Puntarenas', 'San José'];
+                        break;
+                    case 'Croatia':
+                        states = ['Bjelovar-Bilogora', 'Brodsko-posavska', 'Dubrovnik-Neretva', 'Istria', 'Karlovac', 'Koprivnica-Križevci', 'Krapina-Zagorje', 'Lika-Senj', 'Međimurje', 'Osijek-Baranja', 'Požega-Slavonia', 'Primorje-Gorski Kotar', 'Šibenik-Knin', 'Sisak-Moslavina', 'Split-Dalmatia', 'Varaždin', 'Virovitica-Podravina', 'Vukovar-Syrmia', 'Zadar', 'Zagreb County', 'Zagreb'];
+                        break;
+                    case 'Cuba':
+                        states = ['Artemisa', 'Camagüey', 'Ciego de Ávila', 'Cienfuegos', 'Granma', 'Guantánamo', 'Havana', 'Holguín', 'Isle of Youth', 'Las Tunas', 'Matanzas', 'Mayabeque', 'Pinar del Río', 'Sancti Spíritus', 'Santiago de Cuba', 'Villa Clara'];
+                        break;
+                    case 'Cyprus':
+                        states = ['Famagusta', 'Kyrenia', 'Larnaca', 'Limassol', 'Nicosia', 'Paphos'];
+                        break;
+                    case 'Czech Republic':
+                        states = ['Central Bohemia', 'Hradec Králové', 'Karlovy Vary', 'Liberec', 'Moravian-Silesian', 'Olomouc', 'Pardubice', 'Plzeň', 'Prague', 'South Bohemia', 'South Moravia', 'Ústí nad Labem', 'Vysočina', 'Zlín'];
+                        break;
+                    case 'Denmark':
+                        states = ['Capital Region', 'Central Denmark', 'North Denmark', 'Region Zealand', 'Southern Denmark'];
+                        break;
+                    case 'Djibouti':
+                        states = ['Ali Sabieh', 'Arta', 'Dikhil', 'Djibouti', 'Obock', 'Tadjourah'];
+                        break;
+                    case 'Dominica':
+                        states = ['Saint Andrew', 'Saint David', 'Saint George', 'Saint John', 'Saint Joseph', 'Saint Luke', 'Saint Mark', 'Saint Patrick', 'Saint Paul', 'Saint Peter'];
+                        break;
+                    case 'Dominican Republic':
+                        states = ['Azua', 'Baoruco', 'Barahona', 'Dajabón', 'Distrito Nacional', 'Duarte', 'El Seibo', 'Elías Piña', 'Espaillat', 'Hato Mayor', 'Hermanas Mirabal', 'Independencia', 'La Altagracia', 'La Romana', 'La Vega', 'María Trinidad Sánchez', 'Monseñor Nouel', 'Monte Cristi', 'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Samaná', 'San Cristóbal', 'San José de Ocoa', 'San Juan', 'San Pedro de Macorís', 'Sánchez Ramírez', 'Santiago', 'Santiago Rodríguez', 'Santo Domingo', 'Valverde'];
+                        break;
+                    case 'East Timor':
+                        states = ['Aileu', 'Ainaro', 'Baucau', 'Bobonaro', 'Cova Lima', 'Díli', 'Ermera', 'Lautém', 'Liquiçá', 'Manatuto', 'Manufahi', 'Oecusse', 'Viqueque'];
+                        break;
+                    case 'Ecuador':
+                        states = ['Azuay', 'Bolívar', 'Cañar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro', 'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos', 'Manabí', 'Morona-Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha', 'Santa Elena', 'Santo Domingo de los Tsáchilas', 'Sucumbíos', 'Tungurahua', 'Zamora-Chinchipe'];
+                        break;
+                    case 'Egypt':
+                        states = ['Alexandria', 'Aswan', 'Asyut', 'Beheira', 'Beni Suef', 'Cairo', 'Dakahlia', 'Damietta', 'Faiyum', 'Gharbia', 'Giza', 'Ismailia', 'Kafr el-Sheikh', 'Luxor', 'Matruh', 'Minya', 'Monufia', 'New Valley', 'North Sinai', 'Port Said', 'Qalyubia', 'Qena', 'Red Sea', 'Sharqia', 'Sohag', 'South Sinai', 'Suez'];
+                        break;
+                    case 'El Salvador':
+                        states = ['Ahuachapán', 'Cabañas', 'Chalatenango', 'Cuscatlán', 'La Libertad', 'La Paz', 'La Unión', 'Morazán', 'San Miguel', 'San Salvador', 'San Vicente', 'Santa Ana', 'Sonsonate', 'Usulután'];
+                        break;
+                    case 'Equatorial Guinea':
+                        states = ['Annobón', 'Bioko Norte', 'Bioko Sur', 'Centro Sur', 'Kié-Ntem', 'Litoral', 'Wele-Nzas'];
+                        break;
+                    case 'Eritrea':
+                        states = ['Anseba', 'Debub', 'Debubawi Keyih Bahri', 'Gash-Barka', 'Maekel', 'Semenawi Keyih Bahri'];
+                        break;
+                    case 'Estonia':
+                        states = ['Harju', 'Hiiu', 'Ida-Viru', 'Jõgeva', 'Järva', 'Lääne', 'Lääne-Viru', 'Põlva', 'Pärnu', 'Rapla', 'Saare', 'Tartu', 'Valga', 'Viljandi', 'Võru'];
+                        break;
+                    case 'Eswatini':
+                        states = ['Hhohho', 'Lubombo', 'Manzini', 'Shiselweni'];
+                        break;
+                    case 'Ethiopia':
+                        states = ['Addis Ababa', 'Afar', 'Amhara', 'Benishangul-Gumuz', 'Dire Dawa', 'Gambela', 'Harari', 'Oromia', 'Sidama', 'Somali', 'Southern Nations', 'Tigray'];
+                        break;
+                    case 'Fiji':
+                        states = ['Ba', 'Bua', 'Cakaudrove', 'Kadavu', 'Lau', 'Lomaiviti', 'Macuata', 'Nadroga-Navosa', 'Naitasiri', 'Namosi', 'Ra', 'Rewa', 'Serua', 'Tailevu'];
+                        break;
+                    case 'Finland':
+                        states = ['Åland', 'Central Finland', 'Central Ostrobothnia', 'Finland Proper', 'Kainuu', 'Kanta-Häme', 'Kymenlaakso', 'Lapland', 'North Karelia', 'Northern Ostrobothnia', 'Northern Savonia', 'Ostrobothnia', 'Päijät-Häme', 'Pirkanmaa', 'Satakunta', 'South Karelia', 'Southern Ostrobothnia', 'Southern Savonia', 'Uusimaa'];
+                        break;
+                    case 'Gabon':
+                        states = ['Estuaire', 'Haut-Ogooué', 'Moyen-Ogooué', 'Ngounié', 'Nyanga', 'Ogooué-Ivindo', 'Ogooué-Lolo', 'Ogooué-Maritime', 'Woleu-Ntem'];
+                        break;
+                    case 'Gambia':
+                        states = ['Banjul', 'Central River', 'Lower River', 'North Bank', 'Upper River', 'West Coast'];
+                        break;
+                    case 'Georgia':
+                        states = ['Adjara', 'Guria', 'Imereti', 'Kakheti', 'Kvemo Kartli', 'Mtskheta-Mtianeti', 'Racha-Lechkhumi', 'Samegrelo-Zemo Svaneti', 'Samtskhe-Javakheti', 'Shida Kartli', 'Tbilisi'];
+                        break;
+                    case 'Ghana':
+                        states = ['Ahafo', 'Ashanti', 'Bono', 'Bono East', 'Central', 'Eastern', 'Greater Accra', 'North East', 'Northern', 'Oti', 'Savannah', 'Upper East', 'Upper West', 'Volta', 'Western', 'Western North'];
+                        break;
+                    case 'Greece':
+                        states = ['Attica', 'Central Greece', 'Central Macedonia', 'Crete', 'East Macedonia and Thrace', 'Epirus', 'Ionian Islands', 'North Aegean', 'Peloponnese', 'South Aegean', 'Thessaly', 'West Greece', 'West Macedonia'];
+                        break;
+                    case 'Grenada':
+                        states = ['Carriacou and Petite Martinique', 'Saint Andrew', 'Saint David', 'Saint George', 'Saint John', 'Saint Mark', 'Saint Patrick'];
+                        break;
+                    case 'Guatemala':
+                        states = ['Alta Verapaz', 'Baja Verapaz', 'Chimaltenango', 'Chiquimula', 'El Progreso', 'Escuintla', 'Guatemala', 'Huehuetenango', 'Izabal', 'Jalapa', 'Jutiapa', 'Petén', 'Quetzaltenango', 'Quiché', 'Retalhuleu', 'Sacatepéquez', 'San Marcos', 'Santa Rosa', 'Sololá', 'Suchitepéquez', 'Totonicapán', 'Zacapa'];
+                        break;
+                    case 'Guinea':
+                        states = ['Boké', 'Conakry', 'Faranah', 'Kankan', 'Kindia', 'Labé', 'Mamou', 'Nzérékoré'];
+                        break;
+                    case 'Guinea-Bissau':
+                        states = ['Bafatá', 'Biombo', 'Bissau', 'Bolama', 'Cacheu', 'Gabú', 'Oio', 'Quinara', 'Tombali'];
+                        break;
+                    case 'Guyana':
+                        states = ['Barima-Waini', 'Cuyuni-Mazaruni', 'Demerara-Mahaica', 'East Berbice-Corentyne', 'Essequibo Islands-West Demerara', 'Mahaica-Berbice', 'Pomeroon-Supenaam', 'Potaro-Siparuni', 'Upper Demerara-Berbice', 'Upper Takutu-Upper Essequibo'];
+                        break;
+                    case 'Haiti':
+                        states = ['Artibonite', 'Centre', 'Grand\'Anse', 'Nippes', 'Nord', 'Nord-Est', 'Nord-Ouest', 'Ouest', 'Sud', 'Sud-Est'];
+                        break;
+                    case 'Honduras':
+                        states = ['Atlántida', 'Choluteca', 'Colón', 'Comayagua', 'Copán', 'Cortés', 'El Paraíso', 'Francisco Morazán', 'Gracias a Dios', 'Intibucá', 'Islas de la Bahía', 'La Paz', 'Lempira', 'Ocotepeque', 'Olancho', 'Santa Bárbara', 'Valle', 'Yoro'];
+                        break;
+                    case 'Hungary':
+                        states = ['Bács-Kiskun', 'Baranya', 'Békés', 'Borsod-Abaúj-Zemplén', 'Budapest', 'Csongrád-Csanád', 'Fejér', 'Győr-Moson-Sopron', 'Hajdú-Bihar', 'Heves', 'Jász-Nagykun-Szolnok', 'Komárom-Esztergom', 'Nógrád', 'Pest', 'Somogy', 'Szabolcs-Szatmár-Bereg', 'Tolna', 'Vas', 'Veszprém', 'Zala'];
+                        break;
+                    case 'Iceland':
+                        states = ['Capital Region', 'Eastern Region', 'Northeastern Region', 'Northwestern Region', 'Southern Peninsula', 'Southern Region', 'Western Region', 'Westfjords'];
+                        break;
+                    case 'Indonesia':
+                        states = ['Aceh', 'Bali', 'Bangka Belitung', 'Banten', 'Bengkulu', 'Central Java', 'Central Kalimantan', 'Central Sulawesi', 'East Java', 'East Kalimantan', 'East Nusa Tenggara', 'Gorontalo', 'Jakarta', 'Jambi', 'Lampung', 'Maluku', 'North Kalimantan', 'North Maluku', 'North Sulawesi', 'North Sumatra', 'Papua', 'Riau', 'Riau Islands', 'South Kalimantan', 'South Sulawesi', 'South Sumatra', 'Southeast Sulawesi', 'West Java', 'West Kalimantan', 'West Nusa Tenggara', 'West Papua', 'West Sulawesi', 'West Sumatra', 'Yogyakarta'];
+                        break;
+                    case 'Iran':
+                        states = ['Alborz', 'Ardabil', 'Bushehr', 'Chaharmahal and Bakhtiari', 'East Azerbaijan', 'Fars', 'Gilan', 'Golestan', 'Hamadan', 'Hormozgan', 'Ilam', 'Isfahan', 'Kerman', 'Kermanshah', 'Khuzestan', 'Kohgiluyeh and Boyer-Ahmad', 'Kurdistan', 'Lorestan', 'Markazi', 'Mazandaran', 'North Khorasan', 'Qazvin', 'Qom', 'Razavi Khorasan', 'Semnan', 'Sistan and Baluchestan', 'South Khorasan', 'Tehran', 'West Azerbaijan', 'Yazd', 'Zanjan'];
+                        break;
+                    case 'Iraq':
+                        states = ['Al Anbar', 'Al Muthanna', 'Al Qādisiyyah', 'As Sulaymaniyyah', 'Babil', 'Baghdad', 'Basra', 'Dhi Qar', 'Diyala', 'Dohuk', 'Erbil', 'Halabja', 'Karbala', 'Kirkuk', 'Maysan', 'Najaf', 'Ninawa', 'Salah ad Din', 'Wasit'];
+                        break;
+                    case 'Ireland':
+                        states = ['Carlow', 'Cavan', 'Clare', 'Cork', 'Donegal', 'Dublin', 'Galway', 'Kerry', 'Kildare', 'Kilkenny', 'Laois', 'Leitrim', 'Limerick', 'Longford', 'Louth', 'Mayo', 'Meath', 'Monaghan', 'Offaly', 'Roscommon', 'Sligo', 'Tipperary', 'Waterford', 'Westmeath', 'Wexford', 'Wicklow'];
+                        break;
+                    case 'Israel':
+                        states = ['Central District', 'Haifa District', 'Jerusalem District', 'Northern District', 'Southern District', 'Tel Aviv District'];
+                        break;
+                    case 'Jamaica':
+                        states = ['Clarendon', 'Hanover', 'Kingston', 'Manchester', 'Portland', 'Saint Andrew', 'Saint Ann', 'Saint Catherine', 'Saint Elizabeth', 'Saint James', 'Saint Mary', 'Saint Thomas', 'Trelawny', 'Westmoreland'];
+                        break;
+                    case 'Jordan':
+                        states = ['Ajloun', 'Amman', 'Aqaba', 'Balqa', 'Irbid', 'Jerash', 'Karak', 'Ma\'an', 'Madaba', 'Mafraq', 'Tafilah', 'Zarqa'];
+                        break;
+                    case 'Kazakhstan':
+                        states = ['Akmola', 'Aktobe', 'Almaty', 'Atyrau', 'East Kazakhstan', 'Jambyl', 'Karagandy', 'Kostanay', 'Kyzylorda', 'Mangystau', 'North Kazakhstan', 'Pavlodar', 'Shymkent', 'Turkistan', 'West Kazakhstan'];
+                        break;
+                    case 'Kenya':
+                        states = ['Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay', 'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera', 'Marsabit', 'Meru', 'Migori', 'Mombasa', 'Murang\'a', 'Nairobi', 'Nakuru', 'Nandi', 'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 'Tana River', 'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot'];
+                        break;
+                    case 'Kiribati':
+                        states = ['Gilbert Islands', 'Line Islands', 'Phoenix Islands'];
+                        break;
+                    case 'Korea, North':
+                        states = ['Chagang', 'Hamgyong-bukto', 'Hamgyong-namdo', 'Hwanghae-bukto', 'Hwanghae-namdo', 'Kangwon', 'Pyongan-bukto', 'Pyongan-namdo', 'Pyongyang', 'Ryanggang'];
+                        break;
+                    case 'Korea, South':
+                        states = ['Busan', 'Chungcheongbuk-do', 'Chungcheongnam-do', 'Daegu', 'Daejeon', 'Gangwon', 'Gwangju', 'Gyeonggi', 'Gyeongsangbuk-do', 'Gyeongsangnam-do', 'Incheon', 'Jeju', 'Jeollabuk-do', 'Jeollanam-do', 'Sejong', 'Seoul', 'Ulsan'];
+                        break;
+                    case 'Kosovo':
+                        states = ['Ferizaj', 'Gjakova', 'Gjilan', 'Mitrovica', 'Peja', 'Pristina', 'Prizren'];
+                        break;
+                    case 'Kuwait':
+                        states = ['Al Ahmadi', 'Al Asimah', 'Al Farwaniyah', 'Al Jahra', 'Hawalli', 'Mubarak Al-Kabeer'];
+                        break;
+                    case 'Kyrgyzstan':
+                        states = ['Batken', 'Bishkek', 'Chuy', 'Issyk-Kul', 'Jalal-Abad', 'Naryn', 'Osh', 'Talas'];
+                        break;
+                    case 'Laos':
+                        states = ['Attapeu', 'Bokeo', 'Bolikhamxai', 'Champasak', 'Houaphanh', 'Khammouane', 'Luang Namtha', 'Luang Prabang', 'Oudomxai', 'Phongsali', 'Saravane', 'Savannakhet', 'Sekong', 'Vientiane', 'Vientiane Prefecture', 'Xaignabouli', 'Xaisomboun', 'Xiangkhouang'];
+                        break;
+                    case 'Latvia':
+                        states = ['Aizkraukle', 'Aluksne', 'Balvi', 'Bauska', 'Cesis', 'Daugavpils', 'Dobele', 'Gulbene', 'Jekabpils', 'Jelgava', 'Kraslava', 'Kuldiga', 'Liepaja', 'Limbazi', 'Ludza', 'Madona', 'Ogre', 'Preili', 'Rezekne', 'Riga', 'Saldus', 'Talsi', 'Tukums', 'Valka', 'Valmiera', 'Ventspils'];
+                        break;
+                    case 'Lebanon':
+                        states = ['Akkar', 'Baalbek-Hermel', 'Beirut', 'Beqaa', 'Mount Lebanon', 'Nabatieh', 'North', 'South'];
+                        break;
+                    case 'Lesotho':
+                        states = ['Berea', 'Butha-Buthe', 'Leribe', 'Mafeteng', 'Maseru', 'Mohale\'s Hoek', 'Mokhotlong', 'Qacha\'s Nek', 'Quthing', 'Thaba-Tseka'];
+                        break;
+                    case 'Liberia':
+                        states = ['Bomi', 'Bong', 'Gbarpolu', 'Grand Bassa', 'Grand Cape Mount', 'Grand Gedeh', 'Grand Kru', 'Lofa', 'Margibi', 'Maryland', 'Montserrado', 'Nimba', 'River Cess', 'River Gee', 'Sinoe'];
+                        break;
+                    case 'Libya':
+                        states = ['Al Butnan', 'Al Jabal al Akhdar', 'Al Jabal al Gharbi', 'Al Jifarah', 'Al Kufrah', 'Al Marj', 'Al Marqab', 'Al Wahat', 'An Nuqat al Khams', 'Az Zawiyah', 'Benghazi', 'Darnah', 'Ghat', 'Misratah', 'Murzuq', 'Nalut', 'Sabha', 'Surt', 'Tripoli', 'Wadi al Hayah', 'Wadi ash Shati'];
+                        break;
+                    case 'Liechtenstein':
+                        states = ['Balzers', 'Eschen', 'Gamprin', 'Mauren', 'Planken', 'Ruggell', 'Schaan', 'Schellenberg', 'Triesen', 'Triesenberg', 'Vaduz'];
+                        break;
+                    case 'Lithuania':
+                        states = ['Alytus', 'Kaunas', 'Klaipeda', 'Marijampole', 'Panevezys', 'Siauliai', 'Taurage', 'Telsiai', 'Utena', 'Vilnius'];
+                        break;
+                    case 'Luxembourg':
+                        states = ['Diekirch', 'Grevenmacher', 'Luxembourg'];
+                        break;
+                    case 'Madagascar':
+                        states = ['Antananarivo', 'Antsiranana', 'Fianarantsoa', 'Mahajanga', 'Toamasina', 'Toliara'];
+                        break;
+                    case 'Malawi':
+                        states = ['Central Region', 'Northern Region', 'Southern Region'];
+                        break;
+                    case 'Malaysia':
+                        states = ['Johor', 'Kedah', 'Kelantan', 'Kuala Lumpur', 'Labuan', 'Malacca', 'Negeri Sembilan', 'Pahang', 'Penang', 'Perak', 'Perlis', 'Putrajaya', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu'];
+                        break;
+                    case 'Maldives':
+                        states = ['Addu', 'Alif Alif', 'Alif Dhaal', 'Baa', 'Dhaalu', 'Faafu', 'Gaafu Alif', 'Gaafu Dhaalu', 'Gnaviyani', 'Haa Alif', 'Haa Dhaalu', 'Kaafu', 'Laamu', 'Lhaviyani', 'Meemu', 'Noonu', 'Raa', 'Seenu', 'Shaviyani', 'Thaa', 'Vaavu'];
+                        break;
+                    case 'Mali':
+                        states = ['Bamako', 'Gao', 'Kayes', 'Kidal', 'Koulikoro', 'Menaka', 'Mopti', 'Segou', 'Sikasso', 'Taoudenit', 'Tombouctou'];
+                        break;
+                    case 'Malta':
+                        states = ['Gozo', 'Malta'];
+                        break;
+                    case 'Marshall Islands':
+                        states = ['Ailinglaplap', 'Ailuk', 'Arno', 'Aur', 'Bikini', 'Ebon', 'Enewetak', 'Jabat', 'Jaluit', 'Kili', 'Kwajalein', 'Lae', 'Lib', 'Likiep', 'Majuro', 'Maloelap', 'Mejit', 'Mili', 'Namdrik', 'Namu', 'Rongelap', 'Rongerik', 'Toke', 'Ujae', 'Ujelang', 'Utirik', 'Wotho', 'Wotje'];
+                        break;
+                    case 'Mauritania':
+                        states = ['Adrar', 'Assaba', 'Brakna', 'Dakhlet Nouadhibou', 'Gorgol', 'Guidimaka', 'Hodh Ech Chargui', 'Hodh El Gharbi', 'Inchiri', 'Nouakchott-Nord', 'Nouakchott-Ouest', 'Nouakchott-Sud', 'Tagant', 'Tiris Zemmour', 'Trarza'];
+                        break;
+                    case 'Mauritius':
+                        states = ['Black River', 'Flacq', 'Grand Port', 'Moka', 'Pamplemousses', 'Plaines Wilhems', 'Port Louis', 'Riviere du Rempart', 'Rodrigues', 'Savanne'];
+                        break;
+                    case 'Micronesia':
+                        states = ['Chuuk', 'Kosrae', 'Pohnpei', 'Yap'];
+                        break;
+                    case 'Moldova':
+                        states = ['Anenii Noi', 'Balti', 'Basarabeasca', 'Bender', 'Briceni', 'Cahul', 'Calarasi', 'Cantemir', 'Causeni', 'Chisinau', 'Cimislia', 'Criuleni', 'Donduseni', 'Drochia', 'Dubasari', 'Edinet', 'Falesti', 'Floresti', 'Gagauzia', 'Glodeni', 'Hincesti', 'Ialoveni', 'Leova', 'Nisporeni', 'Ocnita', 'Orhei', 'Rezina', 'Riscani', 'Singerei', 'Soldanesti', 'Soroca', 'Stefan Voda', 'Straseni', 'Taraclia', 'Telenesti', 'Transnistria', 'Ungheni'];
+                        break;
+                    case 'Monaco':
+                        states = ['Fontvieille', 'La Condamine', 'Monaco-Ville', 'Monte Carlo'];
+                        break;
+                    case 'Mongolia':
+                        states = ['Arkhangai', 'Bayan-Olgii', 'Bayankhongor', 'Bulgan', 'Darkhan-Uul', 'Dornod', 'Dornogovi', 'Dundgovi', 'Govi-Altai', 'Govisumber', 'Khentii', 'Khovd', 'Khuvsgul', 'Orkhon', 'Ovorkhangai', 'Selenge', 'Sukhbaatar', 'Tov', 'Ulaanbaatar', 'Uvs', 'Zavkhan'];
+                        break;
+                    case 'Montenegro':
+                        states = ['Andrijevica', 'Bar', 'Berane', 'Bijelo Polje', 'Budva', 'Cetinje', 'Danilovgrad', 'Gusinje', 'Herceg Novi', 'Kolasin', 'Kotor', 'Mojkovac', 'Niksic', 'Petnjica', 'Plav', 'Pljevlja', 'Pluzine', 'Podgorica', 'Rozaje', 'Savnik', 'Tivat', 'Tuzi', 'Ulcinj', 'Zabljak'];
+                        break;
+                    case 'Morocco':
+                        states = ['Beni Mellal-Khenifra', 'Casablanca-Settat', 'Draa-Tafilalet', 'Fes-Meknes', 'Guelmim-Oued Noun', 'Laayoune-Sakia El Hamra', 'Marrakech-Safi', 'Oriental', 'Rabat-Sale-Kenitra', 'Souss-Massa', 'Tangier-Tetouan-Al Hoceima', 'Dakhla-Oued Ed-Dahab'];
+                        break;
+                    case 'Mozambique':
+                        states = ['Cabo Delgado', 'Gaza', 'Inhambane', 'Manica', 'Maputo', 'Maputo City', 'Nampula', 'Niassa', 'Sofala', 'Tete', 'Zambezia'];
+                        break;
+                    case 'Myanmar':
+                        states = ['Ayeyarwady', 'Bago', 'Chin', 'Kachin', 'Kayah', 'Kayin', 'Magway', 'Mandalay', 'Mon', 'Naypyidaw', 'Rakhine', 'Sagaing', 'Shan', 'Tanintharyi', 'Yangon'];
+                        break;
+                    case 'Namibia':
+                        states = ['Erongo', 'Hardap', 'Karas', 'Kavango East', 'Kavango West', 'Khomas', 'Kunene', 'Ohangwena', 'Omaheke', 'Omusati', 'Oshana', 'Oshikoto', 'Otjozondjupa', 'Zambezi'];
+                        break;
+                    case 'Nauru':
+                        states = ['Aiwo', 'Anabar', 'Anetan', 'Anibare', 'Baiti', 'Boe', 'Buada', 'Denigomodu', 'Ewa', 'Ijuw', 'Meneng', 'Nibok', 'Uaboe', 'Yaren'];
+                        break;
+                    case 'Nepal':
+                        states = ['Bagmati', 'Gandaki', 'Karnali', 'Lumbini', 'Province No. 1', 'Province No. 2', 'Sudurpashchim'];
+                        break;
+                    case 'Netherlands':
+                        states = ['Drenthe', 'Flevoland', 'Friesland', 'Gelderland', 'Groningen', 'Limburg', 'North Brabant', 'North Holland', 'Overijssel', 'South Holland', 'Utrecht', 'Zeeland'];
+                        break;
+                    case 'New Zealand':
+                        states = ['Auckland', 'Bay of Plenty', 'Canterbury', 'Gisborne', 'Hawke\'s Bay', 'Manawatu-Whanganui', 'Marlborough', 'Nelson', 'Northland', 'Otago', 'Southland', 'Taranaki', 'Tasman', 'Waikato', 'Wellington', 'West Coast'];
+                        break;
+                    case 'Nicaragua':
+                        states = ['Boaco', 'Carazo', 'Chinandega', 'Chontales', 'Esteli', 'Granada', 'Jinotega', 'Leon', 'Madriz', 'Managua', 'Masaya', 'Matagalpa', 'North Caribbean Coast', 'Nueva Segovia', 'Rio San Juan', 'Rivas', 'South Caribbean Coast'];
+                        break;
+                    case 'Niger':
+                        states = ['Agadez', 'Diffa', 'Dosso', 'Maradi', 'Niamey', 'Tahoua', 'Tillaberi', 'Zinder'];
+                        break;
+                    case 'Nigeria':
+                        states = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Federal Capital Territory', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'];
+                        break;
+                    case 'North Macedonia':
+                        states = ['Aracinovo', 'Berovo', 'Bitola', 'Bogdanci', 'Bogovinje', 'Bosilovo', 'Brvenica', 'Butel', 'Centar', 'Centar Zupa', 'Cheshinovo-Obleshevo', 'Cucer Sandevo', 'Debar', 'Debarca', 'Delcevo', 'Demir Hisar', 'Demir Kapija', 'Dojran', 'Dolneni', 'Drugovo', 'Gazi Baba', 'Gevgelija', 'Gostivar', 'Gradsko', 'Ilinden', 'Jegunovce', 'Karbinci', 'Karpos', 'Kavadarci', 'Kicevo', 'Kisela Voda', 'Kocani', 'Konce', 'Kratovo', 'Kriva Palanka', 'Krivogastani', 'Krusevo', 'Kumanovo', 'Lipkovo', 'Lozovo', 'Makedonska Kamenica', 'Makedonski Brod', 'Mavrovo and Rostusa', 'Mogila', 'Negotino', 'Novaci', 'Novo Selo', 'Ohrid', 'Oslomej', 'Pehcevo', 'Petrovec', 'Plasnica', 'Prilep', 'Probistip', 'Radovis', 'Rankovce', 'Resen', 'Rosoman', 'Saraj', 'Sopiste', 'Staro Nagoricane', 'Stip', 'Struga', 'Strumica', 'Studenichani', 'Suto Orizari', 'Sveti Nikole', 'Tearce', 'Tetovo', 'Valandovo', 'Vasilevo', 'Veles', 'Vevcani', 'Vinica', 'Vranestica', 'Vrapciste', 'Zelenikovo', 'Zelino', 'Zrnovci'];
+                        break;
+                    case 'Norway':
+                        states = ['Agder', 'Innlandet', 'More og Romsdal', 'Nordland', 'Oslo', 'Rogaland', 'Troms og Finnmark', 'Trondelag', 'Vestfold og Telemark', 'Vestland', 'Viken'];
+                        break;
+                    case 'Oman':
+                        states = ['Ad Dakhiliyah', 'Ad Dhahirah', 'Al Batinah North', 'Al Batinah South', 'Al Buraimi', 'Al Wusta', 'Ash Sharqiyah North', 'Ash Sharqiyah South', 'Dhofar', 'Musandam', 'Muscat'];
+                        break;
+                    case 'Pakistan':
+                        states = ['Azad Kashmir', 'Balochistan', 'Gilgit-Baltistan', 'Islamabad', 'Khyber Pakhtunkhwa', 'Punjab', 'Sindh'];
+                        break;
+                    case 'Palau':
+                        states = ['Aimeliik', 'Airai', 'Angaur', 'Hatohobei', 'Kayangel', 'Koror', 'Melekeok', 'Ngaraard', 'Ngarchelong', 'Ngardmau', 'Ngatpang', 'Ngchesar', 'Ngeremlengui', 'Ngiwal', 'Peleliu', 'Sonsorol'];
+                        break;
+                    case 'Panama':
+                        states = ['Bocas del Toro', 'Chiriqui', 'Cocle', 'Colon', 'Darien', 'Herrera', 'Los Santos', 'Panama', 'Panama Oeste', 'Veraguas'];
+                        break;
+                    case 'Papua New Guinea':
+                        states = ['Bougainville', 'Central', 'Chimbu', 'Eastern Highlands', 'East New Britain', 'East Sepik', 'Enga', 'Gulf', 'Hela', 'Jiwaka', 'Madang', 'Manus', 'Milne Bay', 'Morobe', 'National Capital District', 'New Ireland', 'Northern', 'Southern Highlands', 'Western', 'Western Highlands', 'West New Britain', 'West Sepik'];
+                        break;
+                    case 'Paraguay':
+                        states = ['Alto Paraguay', 'Alto Parana', 'Amambay', 'Asuncion', 'Boqueron', 'Caaguazu', 'Caazapa', 'Canindeyu', 'Central', 'Concepcion', 'Cordillera', 'Guaira', 'Itapua', 'Misiones', 'Neembucu', 'Paraguari', 'Presidente Hayes', 'San Pedro'];
+                        break;
+                    case 'Peru':
+                        states = ['Amazonas', 'Ancash', 'Apurimac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'Huanuco', 'Ica', 'Junin', 'La Libertad', 'Lambayeque', 'Lima', 'Loreto', 'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno', 'San Martin', 'Tacna', 'Tumbes', 'Ucayali'];
+                        break;
+                    case 'Philippines':
+                        states = ['Abra', 'Agusan del Norte', 'Agusan del Sur', 'Aklan', 'Albay', 'Antique', 'Apayao', 'Aurora', 'Basilan', 'Bataan', 'Batanes', 'Batangas', 'Benguet', 'Biliran', 'Bohol', 'Bukidnon', 'Bulacan', 'Cagayan', 'Camarines Norte', 'Camarines Sur', 'Camiguin', 'Capiz', 'Catanduanes', 'Cavite', 'Cebu', 'Cotabato', 'Davao del Norte', 'Davao del Sur', 'Davao de Oro', 'Davao Occidental', 'Davao Oriental', 'Dinagat Islands', 'Eastern Samar', 'Guimaras', 'Ifugao', 'Ilocos Norte', 'Ilocos Sur', 'Iloilo', 'Isabela', 'Kalinga', 'La Union', 'Laguna', 'Lanao del Norte', 'Lanao del Sur', 'Leyte', 'Maguindanao', 'Marinduque', 'Masbate', 'Metro Manila', 'Misamis Occidental', 'Misamis Oriental', 'Mountain Province', 'Negros Occidental', 'Negros Oriental', 'Northern Samar', 'Nueva Ecija', 'Nueva Vizcaya', 'Occidental Mindoro', 'Oriental Mindoro', 'Palawan', 'Pampanga', 'Pangasinan', 'Quezon', 'Quirino', 'Rizal', 'Romblon', 'Samar', 'Sarangani', 'Siquijor', 'Sorsogon', 'South Cotabato', 'Southern Leyte', 'Sultan Kudarat', 'Sulu', 'Surigao del Norte', 'Surigao del Sur', 'Tarlac', 'Tawi-Tawi', 'Zambales', 'Zamboanga del Norte', 'Zamboanga del Sur', 'Zamboanga Sibugay'];
+                        break;
+                    case 'Poland':
+                        states = ['Greater Poland', 'Kuyavian-Pomeranian', 'Lesser Poland', 'Lodz', 'Lower Silesian', 'Lublin', 'Lubusz', 'Masovian', 'Opole', 'Podlaskie', 'Pomeranian', 'Silesian', 'Subcarpathian', 'Swietokrzyskie', 'Warmian-Masurian', 'West Pomeranian'];
+                        break;
+                    case 'Portugal':
+                        states = ['Aveiro', 'Azores', 'Beja', 'Braga', 'Braganca', 'Castelo Branco', 'Coimbra', 'Evora', 'Faro', 'Guarda', 'Leiria', 'Lisboa', 'Madeira', 'Portalegre', 'Porto', 'Santarem', 'Setubal', 'Viana do Castelo', 'Vila Real', 'Viseu'];
+                        break;
+                    case 'Qatar':
+                        states = ['Al Daayen', 'Al Khor', 'Al Rayyan', 'Al Shamal', 'Al Wakrah', 'Doha', 'Umm Salal', 'Al Shahaniya'];
+                        break;
+                    case 'Romania':
+                        states = ['Alba', 'Arad', 'Arges', 'Bacau', 'Bihor', 'Bistrita-Nasaud', 'Botosani', 'Braila', 'Brasov', 'Bucharest', 'Buzau', 'Calarasi', 'Caras-Severin', 'Cluj', 'Constanta', 'Covasna', 'Dambovita', 'Dolj', 'Galati', 'Giurgiu', 'Gorj', 'Harghita', 'Hunedoara', 'Ialomita', 'Iasi', 'Ilfov', 'Maramures', 'Mehedinti', 'Mures', 'Neamt', 'Olt', 'Prahova', 'Salaj', 'Satu Mare', 'Sibiu', 'Suceava', 'Teleorman', 'Timis', 'Tulcea', 'Valcea', 'Vaslui', 'Vrancea'];
+                        break;
+                    case 'Rwanda':
+                        states = ['Eastern', 'Kigali', 'Northern', 'Southern', 'Western'];
+                        break;
+                    case 'Saint Kitts and Nevis':
+                        states = ['Christ Church Nichola Town', 'Saint Anne Sandy Point', 'Saint George Basseterre', 'Saint George Gingerland', 'Saint James Windward', 'Saint John Capesterre', 'Saint John Figtree', 'Saint Mary Cayon', 'Saint Paul Capesterre', 'Saint Paul Charlestown', 'Saint Peter Basseterre', 'Saint Thomas Lowland', 'Saint Thomas Middle Island', 'Trinity Palmetto Point'];
+                        break;
+                    case 'Saint Lucia':
+                        states = ['Anse la Raye', 'Canaries', 'Castries', 'Choiseul', 'Dennery', 'Gros Islet', 'Laborie', 'Micoud', 'Soufriere', 'Vieux Fort'];
+                        break;
+                    case 'Saint Vincent and the Grenadines':
+                        states = ['Charlotte', 'Grenadines', 'Saint Andrew', 'Saint David', 'Saint George', 'Saint Patrick'];
+                        break;
+                    case 'Samoa':
+                        states = ['A\'ana', 'Aiga-i-le-Tai', 'Atua', 'Fa\'asaleleaga', 'Gaga\'emauga', 'Gaga\'ifomauga', 'Palauli', 'Satupa\'itea', 'Tuamasaga', 'Va\'a-o-Fonoti', 'Vaisigano'];
+                        break;
+                    case 'San Marino':
+                        states = ['Acquaviva', 'Borgo Maggiore', 'Chiesanuova', 'Domagnano', 'Faetano', 'Fiorentino', 'Montegiardino', 'San Marino', 'Serravalle'];
+                        break;
+                    case 'Sao Tome and Principe':
+                        states = ['Principe', 'Sao Tome'];
+                        break;
+                    case 'Saudi Arabia':
+                        states = ['Al Bahah', 'Al Hudud ash Shamaliyah', 'Al Jawf', 'Al Madinah al Munawwarah', 'Al Qasim', 'Ar Riyad', 'Ash Sharqiyah', 'Asir', 'Hail', 'Jazan', 'Makkah al Mukarramah', 'Najran', 'Tabuk'];
+                        break;
+                    case 'Senegal':
+                        states = ['Dakar', 'Diourbel', 'Fatick', 'Kaffrine', 'Kaolack', 'Kedougou', 'Kolda', 'Louga', 'Matam', 'Saint-Louis', 'Sedhiou', 'Tambacounda', 'Thies', 'Ziguinchor'];
+                        break;
+                    case 'Serbia':
+                        states = ['Belgrade', 'Bor', 'Branicevo', 'Jablanica', 'Kolubara', 'Macva', 'Moravica', 'Nisava', 'Pcinja', 'Pirot', 'Podunavlje', 'Pomoravlje', 'Rasina', 'Raska', 'South Backa', 'South Banat', 'Sumadija', 'Toplica', 'Vojvodina', 'West Backa', 'Zajecar', 'Zlatibor'];
+                        break;
+                    case 'Seychelles':
+                        states = ['Anse aux Pins', 'Anse Boileau', 'Anse Etoile', 'Anse Louis', 'Anse Royale', 'Baie Lazare', 'Baie Sainte Anne', 'Beau Vallon', 'Bel Air', 'Bel Ombre', 'Cascade', 'Glacis', 'Grand Anse Mahe', 'Grand Anse Praslin', 'La Digue', 'La Riviere Anglaise', 'Mont Buxton', 'Mont Fleuri', 'Plaisance', 'Pointe La Rue', 'Port Glaud', 'Saint Louis', 'Takamaka'];
+                        break;
+                    case 'Sierra Leone':
+                        states = ['Eastern', 'Northern', 'North West', 'Southern', 'Western Area'];
+                        break;
+                    case 'Singapore':
+                        states = ['Central Region', 'East Region', 'North Region', 'North-East Region', 'West Region'];
+                        break;
+                    case 'Slovakia':
+                        states = ['Banskobystricky', 'Bratislavsky', 'Kosicky', 'Nitriansky', 'Presovsky', 'Trenciansky', 'Trnavsky', 'Zilinsky'];
+                        break;
+                    case 'Slovenia':
+                        states = ['Central Slovenia', 'Coastal-Karst', 'Drava', 'Gorizia', 'Lower Sava', 'Mura', 'Savinja', 'Southeast Slovenia', 'Upper Carniola', 'Carinthia', 'Central Sava', 'Littoral-Inner Carniola'];
+                        break;
+                    case 'Solomon Islands':
+                        states = ['Central', 'Choiseul', 'Guadalcanal', 'Honiara', 'Isabel', 'Makira-Ulawa', 'Malaita', 'Rennell and Bellona', 'Temotu', 'Western'];
+                        break;
+                    case 'Somalia':
+                        states = ['Awdal', 'Bakool', 'Banaadir', 'Bari', 'Bay', 'Galguduud', 'Gedo', 'Hiiraan', 'Jubbada Dhexe', 'Jubbada Hoose', 'Mudug', 'Nugaal', 'Sanaag', 'Shabeellaha Dhexe', 'Shabeellaha Hoose', 'Sool', 'Togdheer', 'Woqooyi Galbeed'];
+                        break;
+                    case 'South Africa':
+                        states = ['Eastern Cape', 'Free State', 'Gauteng', 'KwaZulu-Natal', 'Limpopo', 'Mpumalanga', 'Northern Cape', 'North West', 'Western Cape'];
+                        break;
+                    case 'South Sudan':
+                        states = ['Central Equatoria', 'Eastern Equatoria', 'Jonglei', 'Lakes', 'Northern Bahr el Ghazal', 'Unity', 'Upper Nile', 'Warrap', 'Western Bahr el Ghazal', 'Western Equatoria'];
+                        break;
+                    case 'Spain':
+                        states = ['Andalusia', 'Aragon', 'Asturias', 'Balearic Islands', 'Basque Country', 'Canary Islands', 'Cantabria', 'Castile and Leon', 'Castile-La Mancha', 'Catalonia', 'Ceuta', 'Extremadura', 'Galicia', 'La Rioja', 'Madrid', 'Melilla', 'Murcia', 'Navarre', 'Valencia'];
+                        break;
+                    case 'Sri Lanka':
+                        states = ['Central', 'Eastern', 'North Central', 'Northern', 'North Western', 'Sabaragamuwa', 'Southern', 'Uva', 'Western'];
+                        break;
+                    case 'Sudan':
+                        states = ['Al Jazirah', 'Blue Nile', 'Central Darfur', 'East Darfur', 'Gedaref', 'Kassala', 'Khartoum', 'North Darfur', 'North Kordofan', 'Northern', 'Red Sea', 'River Nile', 'Sennar', 'South Darfur', 'South Kordofan', 'West Darfur', 'West Kordofan', 'White Nile'];
+                        break;
+                    case 'Suriname':
+                        states = ['Brokopondo', 'Commewijne', 'Coronie', 'Marowijne', 'Nickerie', 'Para', 'Paramaribo', 'Saramacca', 'Sipaliwini', 'Wanica'];
+                        break;
+                    case 'Sweden':
+                        states = ['Blekinge', 'Dalarna', 'Gavleborg', 'Gotland', 'Halland', 'Jamtland', 'Jonkoping', 'Kalmar', 'Kronoberg', 'Norrbotten', 'Orebro', 'Ostergotland', 'Skane', 'Sodermanland', 'Stockholm', 'Uppsala', 'Varmland', 'Vasterbotten', 'Vasternorrland', 'Vastmanland', 'Vastra Gotaland'];
+                        break;
+                    case 'Switzerland':
+                        states = ['Aargau', 'Appenzell Ausserrhoden', 'Appenzell Innerrhoden', 'Basel-Landschaft', 'Basel-Stadt', 'Bern', 'Fribourg', 'Geneva', 'Glarus', 'Graubunden', 'Jura', 'Lucerne', 'Neuchatel', 'Nidwalden', 'Obwalden', 'Schaffhausen', 'Schwyz', 'Solothurn', 'St. Gallen', 'Thurgau', 'Ticino', 'Uri', 'Valais', 'Vaud', 'Zug', 'Zurich'];
+                        break;
+                    case 'Syria':
+                        states = ['Al-Hasakah', 'Al-Ladhiqiyah', 'Al-Qunaytirah', 'Ar-Raqqah', 'As-Suwayda', 'Damascus', 'Damascus Countryside', 'Daraa', 'Deir ez-Zor', 'Hama', 'Homs', 'Idlib', 'Rif Dimashq', 'Tartus'];
+                        break;
+                    case 'Taiwan':
+                        states = ['Changhua', 'Chiayi City', 'Chiayi County', 'Hsinchu City', 'Hsinchu County', 'Hualien', 'Kaohsiung', 'Keelung', 'Kinmen', 'Lienchiang', 'Miaoli', 'Nantou', 'New Taipei', 'Penghu', 'Pingtung', 'Taichung', 'Tainan', 'Taipei', 'Taitung', 'Taoyuan', 'Yilan', 'Yunlin'];
+                        break;
+                    case 'Tajikistan':
+                        states = ['Districts of Republican Subordination', 'Dushanbe', 'Gorno-Badakhshan', 'Khatlon', 'Sughd'];
+                        break;
+                    case 'Tanzania':
+                        states = ['Arusha', 'Dar es Salaam', 'Dodoma', 'Geita', 'Iringa', 'Kagera', 'Katavi', 'Kigoma', 'Kilimanjaro', 'Lindi', 'Manyara', 'Mara', 'Mbeya', 'Morogoro', 'Mtwara', 'Mwanza', 'Njombe', 'Pemba North', 'Pemba South', 'Pwani', 'Rukwa', 'Ruvuma', 'Shinyanga', 'Simiyu', 'Singida', 'Songwe', 'Tabora', 'Tanga', 'Unguja North', 'Unguja South'];
+                        break;
+                    case 'Thailand':
+                        states = ['Amnat Charoen', 'Ang Thong', 'Bangkok', 'Bueng Kan', 'Buri Ram', 'Chachoengsao', 'Chai Nat', 'Chaiyaphum', 'Chanthaburi', 'Chiang Mai', 'Chiang Rai', 'Chon Buri', 'Chumphon', 'Kalasin', 'Kamphaeng Phet', 'Kanchanaburi', 'Khon Kaen', 'Krabi', 'Lampang', 'Lamphun', 'Loei', 'Lop Buri', 'Mae Hong Son', 'Maha Sarakham', 'Mukdahan', 'Nakhon Nayok', 'Nakhon Pathom', 'Nakhon Phanom', 'Nakhon Ratchasima', 'Nakhon Sawan', 'Nakhon Si Thammarat', 'Nan', 'Narathiwat', 'Nong Bua Lam Phu', 'Nong Khai', 'Nonthaburi', 'Pathum Thani', 'Pattani', 'Phang Nga', 'Phatthalung', 'Phayao', 'Phetchabun', 'Phetchaburi', 'Phichit', 'Phitsanulok', 'Phra Nakhon Si Ayutthaya', 'Phrae', 'Phuket', 'Prachin Buri', 'Prachuap Khiri Khan', 'Ranong', 'Ratchaburi', 'Rayong', 'Roi Et', 'Sa Kaeo', 'Sakon Nakhon', 'Samut Prakan', 'Samut Sakhon', 'Samut Songkhram', 'Saraburi', 'Satun', 'Sing Buri', 'Sisaket', 'Songkhla', 'Sukhothai', 'Suphan Buri', 'Surat Thani', 'Surin', 'Tak', 'Trang', 'Trat', 'Ubon Ratchathani', 'Udon Thani', 'Uthai Thani', 'Uttaradit', 'Yala', 'Yasothon'];
+                        break;
+                    case 'Togo':
+                        states = ['Centrale', 'Kara', 'Maritime', 'Plateaux', 'Savanes'];
+                        break;
+                    case 'Tonga':
+                        states = ['Eua', 'Ha\'apai', 'Niuas', 'Tongatapu', 'Vava\'u'];
+                        break;
+                    case 'Trinidad and Tobago':
+                        states = ['Arima', 'Chaguanas', 'Couva-Tabaquite-Talparo', 'Diego Martin', 'Eastern Tobago', 'Penal-Debe', 'Point Fortin', 'Port of Spain', 'Princes Town', 'Rio Claro-Mayaro', 'San Fernando', 'San Juan-Laventille', 'Sangre Grande', 'Siparia', 'Tunapuna-Piarco', 'Western Tobago'];
+                        break;
+                    case 'Tunisia':
+                        states = ['Ariana', 'Beja', 'Ben Arous', 'Bizerte', 'Gabes', 'Gafsa', 'Jendouba', 'Kairouan', 'Kasserine', 'Kebili', 'Kef', 'Mahdia', 'Manouba', 'Medenine', 'Monastir', 'Nabeul', 'Sfax', 'Sidi Bouzid', 'Siliana', 'Sousse', 'Tataouine', 'Tozeur', 'Tunis', 'Zaghouan'];
+                        break;
+                    case 'Turkey':
+                        states = ['Adana', 'Adiyaman', 'Afyonkarahisar', 'Agri', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin', 'Aydin', 'Balikesir', 'Bartin', 'Batman', 'Bayburt', 'Bilecik', 'Bingol', 'Bitlis', 'Bolu', 'Burdur', 'Bursa', 'Canakkale', 'Cankiri', 'Corum', 'Denizli', 'Diyarbakir', 'Duzce', 'Edirne', 'Elazig', 'Erzincan', 'Erzurum', 'Eskisehir', 'Gaziantep', 'Giresun', 'Gumushane', 'Hakkari', 'Hatay', 'Igdir', 'Isparta', 'Istanbul', 'Izmir', 'Kahramanmaras', 'Karabuk', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kirikkale', 'Kirklareli', 'Kirsehir', 'Kilis', 'Kocaeli', 'Konya', 'Kutahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Mugla', 'Mus', 'Nevsehir', 'Nigde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun', 'Siirt', 'Sinop', 'Sivas', 'Sanliurfa', 'Sirnak', 'Tekirdag', 'Tokat', 'Trabzon', 'Tunceli', 'Usak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak'];
+                        break;
+                    case 'Turkmenistan':
+                        states = ['Ahal', 'Ashgabat', 'Balkan', 'Dashoguz', 'Lebap', 'Mary'];
+                        break;
+                    case 'Tuvalu':
+                        states = ['Funafuti', 'Nanumaga', 'Nanumea', 'Niutao', 'Nui', 'Nukufetau', 'Nukulaelae', 'Vaitupu'];
+                        break;
+                    case 'Uganda':
+                        states = ['Central', 'Eastern', 'Northern', 'Western'];
+                        break;
+                    case 'Ukraine':
+                        states = ['Cherkasy', 'Chernihiv', 'Chernivtsi', 'Dnipropetrovsk', 'Donetsk', 'Ivano-Frankivsk', 'Kharkiv', 'Kherson', 'Khmelnytskyi', 'Kiev', 'Kirovohrad', 'Luhansk', 'Lviv', 'Mykolaiv', 'Odessa', 'Poltava', 'Rivne', 'Sumy', 'Ternopil', 'Vinnytsia', 'Volyn', 'Zakarpattia', 'Zaporizhzhia', 'Zhytomyr'];
+                        break;
+                    case 'United Arab Emirates':
+                        states = ['Abu Dhabi', 'Ajman', 'Dubai', 'Fujairah', 'Ras Al Khaimah', 'Sharjah', 'Umm Al Quwain'];
+                        break;
+                    case 'Uruguay':
+                        states = ['Artigas', 'Canelones', 'Cerro Largo', 'Colonia', 'Durazno', 'Flores', 'Florida', 'Lavalleja', 'Maldonado', 'Montevideo', 'Paysandu', 'Rio Negro', 'Rivera', 'Rocha', 'Salto', 'San Jose', 'Soriano', 'Tacuarembo', 'Treinta y Tres'];
+                        break;
+                    case 'Uzbekistan':
+                        states = ['Andijan', 'Bukhara', 'Fergana', 'Jizzakh', 'Karakalpakstan', 'Kashkadarya', 'Khorezm', 'Namangan', 'Navoiy', 'Qashqadaryo', 'Samarkand', 'Sirdaryo', 'Surkhandarya', 'Tashkent', 'Tashkent City'];
+                        break;
+                    case 'Vanuatu':
+                        states = ['Malampa', 'Penama', 'Sanma', 'Shefa', 'Tafea', 'Torba'];
+                        break;
+                    case 'Vatican City':
+                        states = ['Vatican City'];
+                        break;
+                    case 'Venezuela':
+                        states = ['Amazonas', 'Anzoategui', 'Apure', 'Aragua', 'Barinas', 'Bolivar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital', 'Falcon', 'Guarico', 'Lara', 'Merida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Tachira', 'Trujillo', 'Vargas', 'Yaracuy', 'Zulia'];
+                        break;
+                    case 'Vietnam':
+                        states = ['An Giang', 'Ba Ria-Vung Tau', 'Bac Giang', 'Bac Kan', 'Bac Lieu', 'Bac Ninh', 'Ben Tre', 'Binh Dinh', 'Binh Duong', 'Binh Phuoc', 'Binh Thuan', 'Ca Mau', 'Can Tho', 'Cao Bang', 'Da Nang', 'Dak Lak', 'Dak Nong', 'Dien Bien', 'Dong Nai', 'Dong Thap', 'Gia Lai', 'Ha Giang', 'Ha Nam', 'Ha Noi', 'Ha Tinh', 'Hai Duong', 'Hai Phong', 'Hau Giang', 'Ho Chi Minh City', 'Hoa Binh', 'Hung Yen', 'Khanh Hoa', 'Kien Giang', 'Kon Tum', 'Lai Chau', 'Lam Dong', 'Lang Son', 'Lao Cai', 'Long An', 'Nam Dinh', 'Nghe An', 'Ninh Binh', 'Ninh Thuan', 'Phu Tho', 'Phu Yen', 'Quang Binh', 'Quang Nam', 'Quang Ngai', 'Quang Ninh', 'Quang Tri', 'Soc Trang', 'Son La', 'Tay Ninh', 'Thai Binh', 'Thai Nguyen', 'Thanh Hoa', 'Thua Thien-Hue', 'Tien Giang', 'Tra Vinh', 'Tuyen Quang', 'Vinh Long', 'Vinh Phuc', 'Yen Bai'];
+                        break;
+                    case 'Yemen':
+                        states = ['Abyan', 'Aden', 'Al Bayda', 'Al Hudaydah', 'Al Jawf', 'Al Mahrah', 'Al Mahwit', 'Amran', 'Dhamar', 'Hadramaut', 'Hajjah', 'Ibb', 'Lahij', 'Ma\'rib', 'Raymah', 'Sa\'dah', 'Sana\'a', 'Shabwah', 'Socotra', 'Ta\'izz'];
+                        break;
+                    case 'Zambia':
+                        states = ['Central', 'Copperbelt', 'Eastern', 'Luapula', 'Lusaka', 'Muchinga', 'Northern', 'North-Western', 'Southern', 'Western'];
+                        break;
+                    case 'Zimbabwe':
+                        states = ['Bulawayo', 'Harare', 'Manicaland', 'Mashonaland Central', 'Mashonaland East', 'Mashonaland West', 'Masvingo', 'Matabeleland North', 'Matabeleland South', 'Midlands'];
                         break;
                     default:
                         stateContainer.style.display = 'none';

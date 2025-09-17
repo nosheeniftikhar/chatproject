@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,9 +48,7 @@ Route::get('/terms', function () {
 //     return view('registration');
 // })->name('register');
 
-Route::get('/chat', function () {
-    return view('userlogin');
-})->name('chat.room');
+Route::get('/chat', [ChatController::class, 'showChatRoom'])->name('chat.room');
 
 // Form submission routes
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
@@ -60,10 +59,8 @@ Route::post('/contact', [ContactController::class, 'submit'])->name('contact.sub
 //     return back()->with('success', 'Registration successful! Please log in.');
 // })->name('register.submit');
 
-Route::post('/chat/enter', function () {
-    // Handle chat entry form submission
-    return redirect()->route('chat.room');
-})->name('chat.enter');
+Route::post('/chat/enter', [ChatController::class, 'enterChat'])->name('chat.enter');
+Route::post('/chat/end', [ChatController::class, 'endSession'])->name('chat.end');
 
 // Keep existing auth routes but disable registration
 // Auth::routes();
