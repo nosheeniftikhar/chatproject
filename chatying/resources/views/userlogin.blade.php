@@ -598,6 +598,101 @@
             display: block;
         }
         
+        /* Chat Tabs Styling */
+        .chat-tabs {
+            display: flex;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            min-height: 50px;
+        }
+        
+        .tab-item {
+            flex: 0 0 auto;
+            min-width: 120px;
+            max-width: 200px;
+            padding: 12px 16px;
+            background-color: #e9ecef;
+            border-right: 1px solid #dee2e6;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        .tab-item:hover {
+            background-color: #dee2e6;
+        }
+        
+        .tab-item.active {
+            background-color: var(--white);
+            border-bottom: 3px solid var(--secondary);
+        }
+        
+        .tab-item:first-child {
+            border-top-left-radius: 12px;
+        }
+        
+        .tab-title {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+        
+        .tab-close {
+            margin-left: 8px;
+            color: #6c757d;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            opacity: 0;
+        }
+        
+        .tab-item:hover .tab-close {
+            opacity: 1;
+        }
+        
+        .tab-close:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .chat-tab-content {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .chat-tab-content.active {
+            display: flex;
+        }
+        
+        .tab-unread-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: none;
+        }
+        
+        .tab-item.has-unread .tab-unread-indicator {
+            display: block;
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -757,52 +852,54 @@
                 </ul>
             </section>
             
-            <!-- Chat Area -->
+            <!-- Chat Area with Tabs -->
             <section class="chat-area" aria-label="Chat Window">
-                <div class="chat-header" id="chatHeader">
-                    <h3 id="chatTitle">Welcome to Chatying</h3>
-                    <div class="call-buttons">
-                        <button class="btn btn-success" onclick="startAudioCall()" title="Audio Call">
-                            <i class="fas fa-phone"></i>
-                        </button>
-                        <button class="btn btn-info" onclick="startVideoCall()" title="Video Call">
-                            <i class="fas fa-video"></i>
-                        </button>
+                <!-- Chat Tabs -->
+                <div class="chat-tabs" id="chatTabs">
+                    <div class="tab-item active" id="welcomeTab" onclick="switchToTab('welcome')">
+                        <span class="tab-title">Welcome</span>
                     </div>
                 </div>
                 
-                <div class="chat-messages empty" id="chatMessages" aria-live="polite">
-                    <p>Welcome to Chatying!</p>
-                    <p>Select a user from the sidebar to begin a conversation.</p>
-                </div>
-                
-                <div class="chat-input" id="chatInput">
-                    <form id="chatForm" onsubmit="sendMessage(event)" aria-label="Chat Input Form">
-                        <div class="media-buttons">
-                            <label for="imageInput" title="Send Image" aria-label="Upload Image">
-                                <i class="fas fa-image"></i>
-                            </label>
-                            <input type="file" id="imageInput" accept="image/*" aria-hidden="true">
-                            
-                            <label for="fileInput" title="Send File" aria-label="Upload File">
-                                <i class="fas fa-file"></i>
-                            </label>
-                            <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" aria-hidden="true">
-                            
-                            <label for="videoInput" title="Send Video" aria-label="Upload Video">
+                <!-- Welcome Tab Content -->
+                <div class="chat-tab-content active" id="welcomeTabContent">
+                    <div class="chat-header">
+                        <h3>Welcome to Chatying</h3>
+                        <div class="call-buttons" style="visibility: hidden;">
+                            <button class="btn btn-success" title="Audio Call">
+                                <i class="fas fa-phone"></i>
+                            </button>
+                            <button class="btn btn-info" title="Video Call">
                                 <i class="fas fa-video"></i>
-                            </label>
-                            <input type="file" id="videoInput" accept="video/*" aria-hidden="true">
-                            
-                            <button type="button" id="voiceRecord" class="voice-record-btn" style="font-size: 1.2rem; padding: 0; margin: 0 0.3rem;" aria-label="Record Voice Note" title="Voice Message">
-                                <i class="fas fa-microphone"></i>
                             </button>
                         </div>
-                        
-                        <input type="text" id="messageInput" placeholder="Type a message..." required aria-label="Type your message">
-                        
-                        <button type="submit" class="btn" aria-label="Send Message">Send</button>
-                    </form>
+                    </div>
+                    
+                    <div class="chat-messages empty">
+                        <p>Welcome to Chatying!</p>
+                        <p>Select a user from the sidebar to begin a conversation.</p>
+                    </div>
+                    
+                    <div class="chat-input" style="opacity: 0.5; pointer-events: none;">
+                        <form aria-label="Chat Input Form">
+                            <div class="media-buttons">
+                                <label title="Send Image">
+                                    <i class="fas fa-image"></i>
+                                </label>
+                                <label title="Send File">
+                                    <i class="fas fa-file"></i>
+                                </label>
+                                <label title="Send Video">
+                                    <i class="fas fa-video"></i>
+                                </label>
+                                <button type="button" class="voice-record-btn" style="font-size: 1.2rem; padding: 0; margin: 0 0.3rem;" title="Voice Message">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                            <input type="text" placeholder="Select a user to start chatting..." disabled>
+                            <button type="button" class="btn" disabled>Send</button>
+                        </form>
+                    </div>
                 </div>
             </section>
         </div>
@@ -837,6 +934,8 @@
     <script>
         let currentUser = null;
         let unreadCount = 3;
+        let activeChats = {}; // Store active chat data for each user
+        let currentActiveTab = 'welcome'; // Track current active tab
         
         function toggleMessagesDropdown() {
             const dropdown = document.getElementById('messagesDropdown');
@@ -857,22 +956,8 @@
             // Add active class to selected user
             element.classList.add('active');
             
-            // Update chat header
-            document.getElementById('chatTitle').textContent = `Chat with ${username}`;
-            currentUser = username;
-            
-            // Clear messages and show demo conversation
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.classList.remove('empty');
-            chatMessages.innerHTML = `
-                <div class="message received">
-                    <div class="message-content">Hello! I'm ${username}. Nice to meet you!</div>
-                    <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
-                </div>
-            `;
-            
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Create or switch to chat tab
+            createChatTab(username);
         }
         
         function selectUserByName(username) {
@@ -1363,9 +1448,392 @@
             }
         });
         
+        // Chat Tab Functions
+        function switchToTab(tabId) {
+            // Remove active class from all tabs and tab contents
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.chat-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Add active class to selected tab and its content
+            const selectedTab = document.getElementById(`${tabId}Tab`);
+            const selectedContent = document.getElementById(`${tabId}TabContent`);
+            
+            if (selectedTab && selectedContent) {
+                selectedTab.classList.add('active');
+                selectedContent.classList.add('active');
+                currentActiveTab = tabId;
+                
+                // Update current user based on tab
+                if (tabId !== 'welcome') {
+                    currentUser = tabId;
+                } else {
+                    currentUser = null;
+                }
+                
+                // Remove unread indicator when switching to tab
+                selectedTab.classList.remove('has-unread');
+            }
+        }
+        
+        function createChatTab(username) {
+            // Check if tab already exists
+            const existingTab = document.getElementById(`${username}Tab`);
+            if (existingTab) {
+                switchToTab(username);
+                return;
+            }
+            
+            // Create new tab
+            const tabsContainer = document.getElementById('chatTabs');
+            const chatArea = document.querySelector('.chat-area');
+            
+            // Create tab element
+            const newTab = document.createElement('div');
+            newTab.className = 'tab-item';
+            newTab.id = `${username}Tab`;
+            newTab.onclick = () => switchToTab(username);
+            newTab.innerHTML = `
+                <span class="tab-title">${username}</span>
+                <span class="tab-close" onclick="event.stopPropagation(); closeChatTab('${username}')">
+                    <i class="fas fa-times"></i>
+                </span>
+                <div class="tab-unread-indicator"></div>
+            `;
+            
+            // Add tab to container
+            tabsContainer.appendChild(newTab);
+            
+            // Create tab content
+            const newTabContent = document.createElement('div');
+            newTabContent.className = 'chat-tab-content';
+            newTabContent.id = `${username}TabContent`;
+            
+            // Get user gender for icon styling
+            const userGender = getUserGender(username);
+            const userIconClass = userGender === 'female' ? 'user-icon-female' : 'user-icon-male';
+            
+            newTabContent.innerHTML = `
+                <div class="chat-header">
+                    <div>
+                        <i class="fas fa-user ${userIconClass}" style="margin-right: 0.5rem;"></i>
+                        <span id="chatTitle_${username}">Chat with ${username}</span>
+                    </div>
+                    <div class="call-buttons">
+                        <button class="btn btn-success" onclick="startAudioCall('${username}')" title="Audio Call">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <button class="btn btn-info" onclick="startVideoCall('${username}')" title="Video Call">
+                            <i class="fas fa-video"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages_${username}">
+                    <div class="message received">
+                        <div class="message-content">Hello! I'm ${username}. Nice to meet you!</div>
+                        <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <form onsubmit="sendMessageToTab(event, '${username}')" aria-label="Chat Input Form">
+                        <div class="media-buttons">
+                            <label title="Send Image">
+                                <i class="fas fa-image"></i>
+                                <input type="file" accept="image/*" onchange="handleImageUpload(event, '${username}')">
+                            </label>
+                            <label title="Send File">
+                                <i class="fas fa-file"></i>
+                                <input type="file" onchange="handleFileUpload(event, '${username}')">
+                            </label>
+                            <label title="Send Video">
+                                <i class="fas fa-video"></i>
+                                <input type="file" accept="video/*" onchange="handleVideoUpload(event, '${username}')">
+                            </label>
+                            <button type="button" class="voice-record-btn" onclick="handleVoiceRecord('${username}')" style="font-size: 1.2rem; padding: 0; margin: 0 0.3rem;" title="Voice Message">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                        <input type="text" id="messageInput_${username}" placeholder="Type your message..." autocomplete="off">
+                        <button type="submit" class="btn">Send</button>
+                    </form>
+                </div>
+            `;
+            
+            // Add content to chat area
+            chatArea.appendChild(newTabContent);
+            
+            // Store chat data
+            activeChats[username] = {
+                messages: [],
+                unreadCount: 0
+            };
+            
+            // Switch to the new tab
+            switchToTab(username);
+        }
+        
+        function closeChatTab(username) {
+            const tab = document.getElementById(`${username}Tab`);
+            const tabContent = document.getElementById(`${username}TabContent`);
+            
+            if (tab && tabContent) {
+                // Remove tab and content from DOM
+                tab.remove();
+                tabContent.remove();
+                
+                // Remove from active chats
+                delete activeChats[username];
+                
+                // If this was the active tab, switch to welcome tab
+                if (currentActiveTab === username) {
+                    switchToTab('welcome');
+                }
+            }
+        }
+        
+        function sendMessageToTab(event, username) {
+            event.preventDefault();
+            const messageInput = document.getElementById(`messageInput_${username}`);
+            const messageText = messageInput.value.trim();
+            
+            if (messageText) {
+                const chatMessages = document.getElementById(`chatMessages_${username}`);
+                
+                // Add sent message
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sent');
+                messageDiv.innerHTML = `
+                    <div class="message-content">${messageText}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                messageInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Store message in active chats
+                if (!activeChats[username]) {
+                    activeChats[username] = { messages: [], unreadCount: 0 };
+                }
+                activeChats[username].messages.push({
+                    type: 'sent',
+                    content: messageText,
+                    timestamp: new Date()
+                });
+                
+                // Demo auto-reply after 2 seconds
+                setTimeout(() => {
+                    const replies = [
+                        "That's interesting! Tell me more.",
+                        "I completely agree with you.",
+                        "Thanks for sharing that with me.",
+                        "How was your day today?",
+                        "I'm glad to hear from you!",
+                        "What do you think about that?"
+                    ];
+                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                    
+                    const replyDiv = document.createElement('div');
+                    replyDiv.classList.add('message', 'received');
+                    replyDiv.innerHTML = `
+                        <div class="message-content">${randomReply}</div>
+                        <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                    `;
+                    chatMessages.appendChild(replyDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Store received message
+                    activeChats[username].messages.push({
+                        type: 'received',
+                        content: randomReply,
+                        timestamp: new Date()
+                    });
+                    
+                    // Show unread indicator if not on this tab
+                    if (currentActiveTab !== username) {
+                        const tab = document.getElementById(`${username}Tab`);
+                        if (tab) {
+                            tab.classList.add('has-unread');
+                        }
+                    }
+                    
+                    // Update unread count
+                    unreadCount++;
+                    document.getElementById('messageCount').textContent = unreadCount;
+                }, 2000);
+            }
+        }
+        
+        function getUserGender(username) {
+            // Simple gender detection based on names (for demo purposes)
+            const femaleNames = ['Sarah', 'Andrea', 'Ashley', 'Beth'];
+            return femaleNames.includes(username) ? 'female' : 'male';
+        }
+        
+        // Media upload handlers for tabbed interface
+        function handleImageUpload(event, username) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileName = file.name;
+                const fileSize = formatFileSize(file.size);
+                const chatMessages = document.getElementById(`chatMessages_${username}`);
+                const imageUrl = URL.createObjectURL(file);
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sent');
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="media-preview">
+                            <img src="${imageUrl}" alt="${fileName}" onclick="openImageModal('${imageUrl}', '${fileName}')" style="cursor: pointer; max-width: 200px; border-radius: 8px;">
+                            <div style="font-size: 0.8rem; margin-top: 0.25rem; color: rgba(255,255,255,0.8);">${fileName} (${fileSize})</div>
+                        </div>
+                    </div>
+                    <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                event.target.value = '';
+            }
+        }
+        
+        function handleFileUpload(event, username) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileName = file.name;
+                const fileSize = formatFileSize(file.size);
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                const chatMessages = document.getElementById(`chatMessages_${username}`);
+                
+                let fileIcon = 'fas fa-file';
+                if (['pdf'].includes(fileExtension)) fileIcon = 'fas fa-file-pdf';
+                else if (['doc', 'docx'].includes(fileExtension)) fileIcon = 'fas fa-file-word';
+                else if (['txt'].includes(fileExtension)) fileIcon = 'fas fa-file-alt';
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sent');
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="file-preview" onclick="downloadFile('${fileName}')" style="cursor: pointer; background-color: rgba(255,255,255,0.1); padding: 0.75rem; border-radius: 8px; display: flex; align-items: center;">
+                            <i class="${fileIcon} file-icon" style="font-size: 2rem; margin-right: 0.75rem; color: #fff;"></i>
+                            <div class="file-info">
+                                <div class="file-name" style="font-weight: 600; color: #fff;">${fileName}</div>
+                                <div class="file-size" style="font-size: 0.75rem; color: rgba(255,255,255,0.8);">${fileSize}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                event.target.value = '';
+            }
+        }
+        
+        function handleVideoUpload(event, username) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileName = file.name;
+                const fileSize = formatFileSize(file.size);
+                const chatMessages = document.getElementById(`chatMessages_${username}`);
+                const videoUrl = URL.createObjectURL(file);
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sent');
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="media-preview">
+                            <video controls style="max-width: 250px; border-radius: 8px;">
+                                <source src="${videoUrl}" type="${file.type}">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div style="font-size: 0.8rem; margin-top: 0.25rem; color: rgba(255,255,255,0.8);">${fileName} (${fileSize})</div>
+                        </div>
+                    </div>
+                    <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                event.target.value = '';
+            }
+        }
+        
+        async function handleVoiceRecord(username) {
+            const voiceBtn = event.target;
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    
+                    mediaRecorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            recordedChunks.push(e.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const recordingDuration = Math.round((Date.now() - recordingStartTime) / 1000);
+                        
+                        const chatMessages = document.getElementById(`chatMessages_${username}`);
+                        const messageDiv = document.createElement('div');
+                        messageDiv.classList.add('message', 'sent');
+                        messageDiv.innerHTML = `
+                            <div class="message-content">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 200px;">
+                                    <i class="fas fa-microphone" style="color: #fff; font-size: 1.1rem;"></i>
+                                    <div style="flex: 1;">
+                                        <audio controls style="width: 100%; max-width: 220px; height: 35px;" preload="metadata">
+                                            <source src="${audioUrl}" type="audio/webm">
+                                            <source src="${audioUrl}" type="audio/ogg">
+                                            <source src="${audioUrl}" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.8); margin-top: 2px;">
+                                            Voice message (${recordingDuration}s)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                        `;
+                        chatMessages.appendChild(messageDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        
+                        if (!window.audioUrls) window.audioUrls = [];
+                        window.audioUrls.push(audioUrl);
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                    recordingStartTime = Date.now();
+                    isRecording = true;
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.title = 'Stop Recording';
+                    
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    alert('Could not access microphone. Please check your permissions.');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+                voiceBtn.title = 'Voice Message';
+            }
+        }
+        
         // Demo notification simulation
         setInterval(() => {
-            if (Math.random() > 0.95) { // 5% chance every interval
+            if (Math.random() > 0.98) { // Small chance every interval
                 unreadCount++;
                 document.getElementById('messageCount').textContent = unreadCount;
             }
