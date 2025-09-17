@@ -101,13 +101,6 @@
             border-radius: 50%;
             background-color: #2ECC71;
             margin-right: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
         }
         
         .message-icon {
@@ -476,6 +469,135 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
+        .media-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            cursor: pointer;
+        }
+        
+        .media-preview img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        .media-preview video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        .file-preview {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            cursor: pointer;
+        }
+        
+        .file-icon {
+            font-size: 2rem;
+            margin-right: 0.75rem;
+            color: var(--accent);
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .file-size {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        
+        .call-interface {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            text-align: center;
+            min-width: 300px;
+        }
+        
+        .call-interface.show {
+            display: block;
+        }
+        
+        .call-video {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background-color: #000;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .call-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .call-controls button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .call-controls .end-call {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .call-controls .mute-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .call-controls .video-btn {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .call-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .call-overlay.show {
+            display: block;
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -689,6 +811,26 @@
         <div class="ad-space" aria-hidden="true"></div>
     </main>
     
+    <!-- Call Interface -->
+    <div class="call-overlay" id="callOverlay"></div>
+    <div class="call-interface" id="callInterface">
+        <h4 id="callTitle">Audio Call</h4>
+        <div id="callStatus">Connecting...</div>
+        <video id="localVideo" class="call-video" style="display:none;" autoplay muted></video>
+        <video id="remoteVideo" class="call-video" style="display:none;" autoplay></video>
+        <div class="call-controls">
+            <button class="mute-btn" id="muteBtn" title="Mute/Unmute">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="video-btn" id="videoBtn" title="Camera On/Off" style="display:none;">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="end-call" id="endCallBtn" title="End Call">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+        </div>
+    </div>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -820,19 +962,26 @@
             }
         }
         
-        // Handle media uploads (demo)
+        // Handle media uploads with proper previews
         document.getElementById('imageInput').addEventListener('change', (e) => {
             if (e.target.files[0]) {
                 if (currentUser) {
-                    const fileName = e.target.files[0].name;
+                    const file = e.target.files[0];
+                    const fileName = file.name;
+                    const fileSize = formatFileSize(file.size);
                     const chatMessages = document.getElementById('chatMessages');
+                    
+                    // Create image URL for preview
+                    const imageUrl = URL.createObjectURL(file);
                     
                     const messageDiv = document.createElement('div');
                     messageDiv.classList.add('message', 'sent');
                     messageDiv.innerHTML = `
                         <div class="message-content">
-                            <i class="fas fa-image" style="margin-right: 0.5rem;"></i>
-                            Image: ${fileName}
+                            <div class="media-preview">
+                                <img src="${imageUrl}" alt="${fileName}" onclick="openImageModal('${imageUrl}', '${fileName}')" style="cursor: pointer; max-width: 200px; border-radius: 8px;">
+                                <div style="font-size: 0.8rem; margin-top: 0.25rem; color: rgba(255,255,255,0.8);">${fileName} (${fileSize})</div>
+                            </div>
                         </div>
                         <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
                     `;
@@ -848,15 +997,29 @@
         document.getElementById('fileInput').addEventListener('change', (e) => {
             if (e.target.files[0]) {
                 if (currentUser) {
-                    const fileName = e.target.files[0].name;
+                    const file = e.target.files[0];
+                    const fileName = file.name;
+                    const fileSize = formatFileSize(file.size);
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
                     const chatMessages = document.getElementById('chatMessages');
+                    
+                    // Determine file icon based on extension
+                    let fileIcon = 'fas fa-file';
+                    if (['pdf'].includes(fileExtension)) fileIcon = 'fas fa-file-pdf';
+                    else if (['doc', 'docx'].includes(fileExtension)) fileIcon = 'fas fa-file-word';
+                    else if (['txt'].includes(fileExtension)) fileIcon = 'fas fa-file-alt';
                     
                     const messageDiv = document.createElement('div');
                     messageDiv.classList.add('message', 'sent');
                     messageDiv.innerHTML = `
                         <div class="message-content">
-                            <i class="fas fa-file" style="margin-right: 0.5rem;"></i>
-                            File: ${fileName}
+                            <div class="file-preview" onclick="downloadFile('${fileName}')" style="cursor: pointer; background-color: rgba(255,255,255,0.1); padding: 0.75rem; border-radius: 8px; display: flex; align-items: center;">
+                                <i class="${fileIcon} file-icon" style="font-size: 2rem; margin-right: 0.75rem; color: #fff;"></i>
+                                <div class="file-info">
+                                    <div class="file-name" style="font-weight: 600; color: #fff;">${fileName}</div>
+                                    <div class="file-size" style="font-size: 0.75rem; color: rgba(255,255,255,0.8);">${fileSize}</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
                     `;
@@ -872,15 +1035,25 @@
         document.getElementById('videoInput').addEventListener('change', (e) => {
             if (e.target.files[0]) {
                 if (currentUser) {
-                    const fileName = e.target.files[0].name;
+                    const file = e.target.files[0];
+                    const fileName = file.name;
+                    const fileSize = formatFileSize(file.size);
                     const chatMessages = document.getElementById('chatMessages');
+                    
+                    // Create video URL for preview
+                    const videoUrl = URL.createObjectURL(file);
                     
                     const messageDiv = document.createElement('div');
                     messageDiv.classList.add('message', 'sent');
                     messageDiv.innerHTML = `
                         <div class="message-content">
-                            <i class="fas fa-video" style="margin-right: 0.5rem;"></i>
-                            Video: ${fileName}
+                            <div class="media-preview">
+                                <video controls style="max-width: 250px; border-radius: 8px;">
+                                    <source src="${videoUrl}" type="${file.type}">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <div style="font-size: 0.8rem; margin-top: 0.25rem; color: rgba(255,255,255,0.8);">${fileName} (${fileSize})</div>
+                            </div>
                         </div>
                         <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
                     `;
@@ -893,60 +1066,262 @@
             }
         });
         
-        let isRecording = false;
+        // Helper function to format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
         
-        document.getElementById('voiceRecord').addEventListener('click', () => {
+        // Helper function to open image in modal (placeholder)
+        function openImageModal(imageUrl, fileName) {
+            // Create a simple modal to view image
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background-color: rgba(0,0,0,0.9); z-index: 3000; 
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer;
+            `;
+            modal.innerHTML = `
+                <div style="max-width: 90%; max-height: 90%; text-align: center;">
+                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100%; border-radius: 8px;">
+                    <div style="color: white; margin-top: 10px;">${fileName}</div>
+                </div>
+            `;
+            modal.onclick = () => document.body.removeChild(modal);
+            document.body.appendChild(modal);
+        }
+        
+        // Helper function for file download (placeholder)
+        function downloadFile(fileName) {
+            alert(`Download functionality for ${fileName} would be implemented here.`);
+        }
+        
+        let isRecording = false;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let localStream = null;
+        let currentCall = null;
+        let isMuted = false;
+        let isVideoEnabled = false;
+        
+        // Real audio/video call functions
+        async function startAudioCall() {
+            if (!currentUser) {
+                alert('Please select a user to call first.');
+                return;
+            }
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: true, 
+                    video: false 
+                });
+                
+                showCallInterface('Audio Call', false);
+                document.getElementById('callStatus').textContent = `Calling ${currentUser}...`;
+                
+                // Simulate connection delay
+                setTimeout(() => {
+                    document.getElementById('callStatus').textContent = `Connected to ${currentUser}`;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error accessing audio:', error);
+                alert('Could not access microphone. Please check your permissions.');
+            }
+        }
+        
+        async function startVideoCall() {
+            if (!currentUser) {
+                alert('Please select a user to call first.');
+                return;
+            }
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: true, 
+                    video: true 
+                });
+                
+                showCallInterface('Video Call', true);
+                document.getElementById('callStatus').textContent = `Calling ${currentUser}...`;
+                document.getElementById('localVideo').srcObject = localStream;
+                
+                // Simulate connection delay
+                setTimeout(() => {
+                    document.getElementById('callStatus').textContent = `Connected to ${currentUser}`;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error accessing camera/microphone:', error);
+                alert('Could not access camera or microphone. Please check your permissions.');
+            }
+        }
+        
+        function showCallInterface(title, isVideo) {
+            document.getElementById('callTitle').textContent = title;
+            document.getElementById('callOverlay').classList.add('show');
+            document.getElementById('callInterface').classList.add('show');
+            
+            const videoBtn = document.getElementById('videoBtn');
+            const localVideo = document.getElementById('localVideo');
+            const remoteVideo = document.getElementById('remoteVideo');
+            
+            if (isVideo) {
+                videoBtn.style.display = 'block';
+                localVideo.style.display = 'block';
+                remoteVideo.style.display = 'block';
+                isVideoEnabled = true;
+            } else {
+                videoBtn.style.display = 'none';
+                localVideo.style.display = 'none';
+                remoteVideo.style.display = 'none';
+                isVideoEnabled = false;
+            }
+            
+            currentCall = { isVideo, stream: localStream };
+        }
+        
+        function endCall() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            document.getElementById('callOverlay').classList.remove('show');
+            document.getElementById('callInterface').classList.remove('show');
+            document.getElementById('localVideo').srcObject = null;
+            document.getElementById('remoteVideo').srcObject = null;
+            
+            currentCall = null;
+            isMuted = false;
+            isVideoEnabled = false;
+            
+            // Reset button states
+            const muteBtn = document.getElementById('muteBtn');
+            muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            muteBtn.style.backgroundColor = '#6c757d';
+            
+            const videoBtn = document.getElementById('videoBtn');
+            videoBtn.innerHTML = '<i class="fas fa-video"></i>';
+            videoBtn.style.backgroundColor = '#3498DB';
+        }
+        
+        function toggleMute() {
+            if (localStream) {
+                const audioTracks = localStream.getAudioTracks();
+                audioTracks.forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+                
+                isMuted = !isMuted;
+                const muteBtn = document.getElementById('muteBtn');
+                
+                if (isMuted) {
+                    muteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                    muteBtn.style.backgroundColor = '#dc3545';
+                } else {
+                    muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    muteBtn.style.backgroundColor = '#6c757d';
+                }
+            }
+        }
+        
+        function toggleVideo() {
+            if (localStream && currentCall && currentCall.isVideo) {
+                const videoTracks = localStream.getVideoTracks();
+                videoTracks.forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+                
+                isVideoEnabled = !isVideoEnabled;
+                const videoBtn = document.getElementById('videoBtn');
+                
+                if (isVideoEnabled) {
+                    videoBtn.innerHTML = '<i class="fas fa-video"></i>';
+                    videoBtn.style.backgroundColor = '#3498DB';
+                } else {
+                    videoBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
+                    videoBtn.style.backgroundColor = '#dc3545';
+                }
+            }
+        }
+        
+        // Real voice recording
+        document.getElementById('voiceRecord').addEventListener('click', async () => {
             const voiceBtn = document.getElementById('voiceRecord');
             
-            if (currentUser) {
-                if (!isRecording) {
-                    // Start recording
-                    isRecording = true;
-                    voiceBtn.classList.add('recording');
-                    voiceBtn.title = 'Stop Recording';
+            if (!currentUser) {
+                alert('Please select a user to send a voice message to.');
+                return;
+            }
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     
-                    // Demo: Stop recording after 3 seconds
-                    setTimeout(() => {
-                        isRecording = false;
-                        voiceBtn.classList.remove('recording');
-                        voiceBtn.title = 'Voice Message';
+                    mediaRecorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            recordedChunks.push(e.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
                         
-                        // Send voice message
+                        // Add voice message to chat
                         const chatMessages = document.getElementById('chatMessages');
                         const messageDiv = document.createElement('div');
                         messageDiv.classList.add('message', 'sent');
                         messageDiv.innerHTML = `
                             <div class="message-content">
-                                <i class="fas fa-microphone" style="margin-right: 0.5rem;"></i>
-                                Voice Message (3s)
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-microphone"></i>
+                                    <audio controls style="max-width: 200px;">
+                                        <source src="${audioUrl}" type="audio/webm">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
                             </div>
                             <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
                         `;
                         chatMessages.appendChild(messageDiv);
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                         
-                        // Demo auto-reply
-                        setTimeout(() => {
-                            const replyDiv = document.createElement('div');
-                            replyDiv.classList.add('message', 'received');
-                            replyDiv.innerHTML = `
-                                <div class="message-content">Nice voice message! Thanks for sharing.</div>
-                                <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
-                            `;
-                            chatMessages.appendChild(replyDiv);
-                            chatMessages.scrollTop = chatMessages.scrollHeight;
-                        }, 2000);
-                    }, 3000);
-                } else {
-                    // Stop recording manually
-                    isRecording = false;
-                    voiceBtn.classList.remove('recording');
-                    voiceBtn.title = 'Voice Message';
+                        // Stop all tracks
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.title = 'Stop Recording';
+                    
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    alert('Could not access microphone. Please check your permissions.');
                 }
             } else {
-                alert('Please select a user to send a voice message to.');
+                // Stop recording
+                mediaRecorder.stop();
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+                voiceBtn.title = 'Voice Message';
             }
         });
+        
+        // Call control event listeners
+        document.getElementById('muteBtn').addEventListener('click', toggleMute);
+        document.getElementById('videoBtn').addEventListener('click', toggleVideo);
+        document.getElementById('endCallBtn').addEventListener('click', endCall);
         
         // Close messages dropdown when clicking outside
         document.addEventListener('click', (e) => {
