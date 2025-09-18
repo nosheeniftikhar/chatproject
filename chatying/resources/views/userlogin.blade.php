@@ -737,10 +737,10 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg bg-custom">
         <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">
+            <span class="navbar-brand">
                 <i class="fas fa-comments" style="margin-right: 0.5rem;"></i>
                 Chatying
-            </a>
+            </span>
             
             <div class="user-info">
                 <div class="status-indicator">
@@ -932,6 +932,37 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Profanity filter function
+        function filterProfanity(text) {
+            const profanityWords = [
+                'gand', 'gandu', 'gay', 'phuddi', 'cunt', 'fuck', 'chod', 'bottom', 'top', 
+                'incest', 'bhabi', 'bdsm', 'fetish', 'fisting', 'licking', 'dildo', 
+                'vibrator', 'boobs', 'tits', 'cum', 'piss', 'chus', 'suck', 'sucker'
+            ];
+            
+            let filteredText = text;
+            profanityWords.forEach(word => {
+                const regex = new RegExp(word, 'gi');
+                filteredText = filteredText.replace(regex, '*'.repeat(word.length));
+            });
+            
+            return filteredText;
+        }
+        
+        // Check if text contains profanity
+        function containsProfanity(text) {
+            const profanityWords = [
+                'gand', 'gandu', 'gay', 'phuddi', 'cunt', 'fuck', 'chod', 'bottom', 'top', 
+                'incest', 'bhabi', 'bdsm', 'fetish', 'fisting', 'licking', 'dildo', 
+                'vibrator', 'boobs', 'tits', 'cum', 'piss', 'chus', 'suck', 'sucker'
+            ];
+            
+            return profanityWords.some(word => {
+                const regex = new RegExp(word, 'gi');
+                return regex.test(text);
+            });
+        }
+
         let currentUser = null;
         let unreadCount = 3;
         let activeChats = {}; // Store active chat data for each user
@@ -1487,6 +1518,9 @@
                 return;
             }
             
+            // Check if this chat was previously closed and has saved history
+            const hasExistingChat = activeChats[username] && activeChats[username].isOpen === false;
+            
             // Create new tab
             const tabsContainer = document.getElementById('chatTabs');
             const chatArea = document.querySelector('.chat-area');
@@ -1586,8 +1620,20 @@
                 tab.remove();
                 tabContent.remove();
                 
-                // Remove from active chats
-                delete activeChats[username];
+                // Remove from active chats but preserve chat history for potential reopening
+                if (activeChats[username]) {
+                    // Keep the chat data for potential reopening, but mark as closed
+                    activeChats[username].isOpen = false;
+                }
+                
+                // Remove active state from user in sidebar
+                const userItems = document.querySelectorAll('.user-list li');
+                userItems.forEach(item => {
+                    const usernameText = item.querySelector('.user-item-header').textContent.trim();
+                    if (usernameText.includes(username)) {
+                        item.classList.remove('active');
+                    }
+                });
                 
                 // If this was the active tab, switch to welcome tab
                 if (currentActiveTab === username) {
@@ -1604,24 +1650,27 @@
             if (messageText) {
                 const chatMessages = document.getElementById(`chatMessages_${username}`);
                 
-                // Add sent message
+                // Apply profanity filter to message before displaying
+                const filteredMessage = filterProfanity(messageText);
+                
+                // Add sent message with filtered content
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message', 'sent');
                 messageDiv.innerHTML = `
-                    <div class="message-content">${messageText}</div>
+                    <div class="message-content">${filteredMessage}</div>
                     <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
                 `;
                 chatMessages.appendChild(messageDiv);
                 messageInput.value = '';
                 chatMessages.scrollTop = chatMessages.scrollHeight;
                 
-                // Store message in active chats
+                // Store message in active chats (store filtered version)
                 if (!activeChats[username]) {
                     activeChats[username] = { messages: [], unreadCount: 0 };
                 }
                 activeChats[username].messages.push({
                     type: 'sent',
-                    content: messageText,
+                    content: filteredMessage,
                     timestamp: new Date()
                 });
                 

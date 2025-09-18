@@ -933,7 +933,38 @@
 
     <!-- Custom JavaScript -->
     <script defer>
-        // Update current time every second
+        // Profanity filter function
+        function filterProfanity(text) {
+            const profanityWords = [
+                'gand', 'gandu', 'gay', 'phuddi', 'cunt', 'fuck', 'chod', 'bottom', 'top', 
+                'incest', 'bhabi', 'bdsm', 'fetish', 'fisting', 'licking', 'dildo', 'lund', 'dick', 'cock', 
+                'vibrator', 'boobs', 'tits', 'cum', 'piss', 'chus', 'suck', 'sucker'
+            ];
+            
+            let filteredText = text;
+            profanityWords.forEach(word => {
+                const regex = new RegExp(word, 'gi');
+                filteredText = filteredText.replace(regex, '*'.repeat(word.length));
+            });
+            
+            return filteredText;
+        }
+        
+        // Check if text contains profanity
+        function containsProfanity(text) {
+            const profanityWords = [
+                'gand', 'gandu', 'gay', 'phuddi', 'cunt', 'fuck', 'chod', 'bottom', 'top', 
+                'incest', 'bhabi', 'bdsm', 'fetish', 'fisting', 'licking', 'dildo', 'lund', 'dick', 'cock',
+                'vibrator', 'boobs', 'tits', 'cum', 'piss', 'chus', 'suck', 'sucker'
+            ];
+            
+            return profanityWords.some(word => {
+                const regex = new RegExp(word, 'gi');
+                return regex.test(text);
+            });
+        }
+        
+        // Update current time every second with location-based timezone
         function updateTime() {
             const now = new Date();
             const options = {
@@ -943,15 +974,71 @@
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
+                second: '2-digit',
                 hour12: true,
-                timeZoneName: 'short'
+                timeZoneName: 'long'
             };
-            const timeString = now.toLocaleString(undefined, options);
-            document.getElementById('currentTime').textContent = timeString;
+            
+            // Get the user's timezone automatically
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            // Format time with user's detected timezone
+            const timeString = now.toLocaleString(navigator.language || 'en-US', {
+                ...options,
+                timeZone: userTimezone
+            });
+            
+            // Display timezone information
+            const timezoneInfo = ` (${userTimezone})`;
+            
+            document.getElementById('currentTime').textContent = timeString + timezoneInfo;
+        }
+        
+        // Function to get user's location and update time accordingly
+        function updateTimeWithLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        // Successfully got location
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Use the detected timezone (which should match the location)
+                        updateTime();
+                        
+                        // Optional: Add location info to the time display
+                        const currentTimeElement = document.getElementById('currentTime');
+                        const locationInfo = document.createElement('div');
+                        locationInfo.style.fontSize = '12px';
+                        locationInfo.style.color = '#888';
+                        locationInfo.textContent = `Location: ${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+                        
+                        // Add location info if not already added
+                        if (!document.getElementById('locationInfo')) {
+                            locationInfo.id = 'locationInfo';
+                            currentTimeElement.parentNode.appendChild(locationInfo);
+                        }
+                    },
+                    function(error) {
+                        // Location access denied or failed, just use browser timezone
+                        console.log('Location access denied or failed:', error.message);
+                        updateTime(); // Fall back to timezone detection only
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 300000 // 5 minutes
+                    }
+                );
+            } else {
+                // Geolocation not supported, use timezone detection only
+                console.log('Geolocation is not supported by this browser.');
+                updateTime();
+            }
         }
 
-        // Update time immediately and then every second
-        updateTime();
+        // Update time immediately with location detection and then every second
+        updateTimeWithLocation();
         setInterval(updateTime, 1000);
 
         // Note: Form now submits directly to Laravel backend - no need for JavaScript submission
@@ -989,6 +1076,35 @@
             alert('Safety Guidelines - Follow Chatying's guidelines for a safe chatting experience.');
         }
 
+        // Add form validation for nickname profanity check
+        document.getElementById('chatForm').addEventListener('submit', function(e) {
+            const nicknameInput = document.getElementById('nickname');
+            const nickname = nicknameInput.value.trim();
+            
+            if (containsProfanity(nickname)) {
+                e.preventDefault();
+                alert('Please choose a different nickname. The nickname you entered contains inappropriate content.');
+                nicknameInput.focus();
+                return false;
+            }
+        });
+        
+        // Add real-time validation as user types
+        document.getElementById('nickname').addEventListener('input', function(e) {
+            const nickname = e.target.value.trim();
+            const helpText = document.getElementById('nicknameHelp');
+            
+            if (containsProfanity(nickname)) {
+                e.target.classList.add('is-invalid');
+                helpText.textContent = 'Please choose a different nickname. This contains inappropriate content.';
+                helpText.style.color = '#dc3545';
+            } else {
+                e.target.classList.remove('is-invalid');
+                helpText.textContent = 'Your nickname is how others will see you in the chat.';
+                helpText.style.color = '#6c757d';
+            }
+        });
+        
         // Function to populate states based on country selection
         function populateStates() {
             const countrySelect = document.getElementById('country');
