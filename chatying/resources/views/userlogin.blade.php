@@ -89,6 +89,49 @@
             gap: 1rem;
         }
         
+        .logged-user-info {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            padding: 0.5rem;
+        }
+        
+        .logged-user-info:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .user-details-single-line {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        .user-display-name {
+            color: var(--white);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        .user-separator {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+        
+        .user-age {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+        }
+        
+        .user-location {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+        }
+        
         .status-indicator {
             display: flex;
             align-items: center;
@@ -727,6 +770,24 @@
                 gap: 0.5rem;
             }
             
+            .logged-user-info {
+                order: -1;
+                margin-bottom: 0.5rem;
+            }
+            
+            .user-details-single-line {
+                font-size: 0.8rem;
+                gap: 0.3rem;
+            }
+            
+            .user-display-name {
+                font-size: 0.85rem;
+            }
+            
+            .user-age, .user-location {
+                font-size: 0.75rem;
+            }
+            
             .messages-dropdown {
                 width: 280px;
             }
@@ -743,6 +804,28 @@
             </span>
             
             <div class="user-info">
+                <!-- User Information Display -->
+                @if(session('nickname'))
+                <div class="logged-user-info" title="User: {{ session('nickname') }} | Age: {{ session('age') }} | Location: {{ session('state') ? session('country') . ', ' . session('state') : session('country') }} | Gender: {{ ucfirst(session('gender')) }}">
+                    <div class="user-details-single-line">
+                        <i class="fas fa-user {{ session('gender') == 'female' ? 'user-icon-female' : 'user-icon-male' }}" style="margin-right: 0.5rem;"></i>
+                        <span class="user-display-name">{{ session('nickname') }}</span>
+                        <span class="user-separator">|</span>
+                        <span class="user-age">{{ session('age') ?? 'N/A' }}y</span>
+                        <span class="user-separator">|</span>
+                        @if(session('country'))
+                            @if(session('state'))
+                                <span class="user-location">{{ session('country') }}, {{ session('state') }}</span>
+                            @else
+                                <span class="user-location">{{ session('country') }}</span>
+                            @endif
+                        @else
+                            <span class="user-location">Location not set</span>
+                        @endif
+                    </div>
+                </div>
+                @endif
+                
                 <div class="status-indicator">
                     <span class="status-dot"></span>
                     Online
@@ -1089,32 +1172,6 @@
                 chatMessages.appendChild(messageDiv);
                 messageInput.value = '';
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // Demo auto-reply after 2 seconds
-                setTimeout(() => {
-                    const replies = [
-                        "That's interesting! Tell me more.",
-                        "I completely agree with you.",
-                        "Thanks for sharing that with me.",
-                        "How was your day today?",
-                        "I'm glad to hear from you!",
-                        "What do you think about that?"
-                    ];
-                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
-                    
-                    const replyDiv = document.createElement('div');
-                    replyDiv.classList.add('message', 'received');
-                    replyDiv.innerHTML = `
-                        <div class="message-content">${randomReply}</div>
-                        <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
-                    `;
-                    chatMessages.appendChild(replyDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                    
-                    // Update unread count (demo)
-                    unreadCount++;
-                    document.getElementById('messageCount').textContent = unreadCount;
-                }, 2000);
             } else if (!currentUser) {
                 alert('Please select a user to chat with first.');
             }
@@ -1500,18 +1557,6 @@
                         
                         // Stop all tracks
                         stream.getTracks().forEach(track => track.stop());
-                        
-                        // Optional: Add auto-reply for demo (you can remove this if not needed)
-                        setTimeout(() => {
-                            const replyDiv = document.createElement('div');
-                            replyDiv.classList.add('message', 'received');
-                            replyDiv.innerHTML = `
-                                <div class="message-content">Nice voice message! I heard you clearly.</div>
-                                <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
-                            `;
-                            chatMessages.appendChild(replyDiv);
-                            chatMessages.scrollTop = chatMessages.scrollHeight;
-                        }, 2000);
                     };
                     
                     mediaRecorder.start();
@@ -1636,10 +1681,6 @@
                 </div>
                 
                 <div class="chat-messages" id="chatMessages_${username}">
-                    <div class="message received">
-                        <div class="message-content">Hello! I'm ${username}. Nice to meet you!</div>
-                        <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
-                    </div>
                 </div>
                 
                 <div class="chat-input">
@@ -1749,47 +1790,6 @@
                     content: filteredMessage,
                     timestamp: new Date()
                 });
-                
-                // Demo auto-reply after 2 seconds
-                setTimeout(() => {
-                    const replies = [
-                        "That's interesting! Tell me more.",
-                        "I completely agree with you.",
-                        "Thanks for sharing that with me.",
-                        "How was your day today?",
-                        "I'm glad to hear from you!",
-                        "What do you think about that?"
-                    ];
-                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
-                    
-                    const replyDiv = document.createElement('div');
-                    replyDiv.classList.add('message', 'received');
-                    replyDiv.innerHTML = `
-                        <div class="message-content">${randomReply}</div>
-                        <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
-                    `;
-                    chatMessages.appendChild(replyDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                    
-                    // Store received message
-                    activeChats[username].messages.push({
-                        type: 'received',
-                        content: randomReply,
-                        timestamp: new Date()
-                    });
-                    
-                    // Show unread indicator if not on this tab
-                    if (currentActiveTab !== username) {
-                        const tab = document.getElementById(`${username}Tab`);
-                        if (tab) {
-                            tab.classList.add('has-unread');
-                        }
-                    }
-                    
-                    // Update unread count
-                    unreadCount++;
-                    document.getElementById('messageCount').textContent = unreadCount;
-                }, 2000);
             }
         }
         

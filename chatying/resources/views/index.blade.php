@@ -663,6 +663,7 @@
                                 <option value="Comoros">Comoros</option>
                                 <option value="Congo, Democratic Republic of the">Congo, Democratic Republic of the</option>
                                 <option value="Congo, Republic of the">Congo, Republic of the</option>
+                                <option value="Côte d'Ivoire">Côte d'Ivoire</option>
                                 <option value="Costa Rica">Costa Rica</option>
                                 <option value="Croatia">Croatia</option>
                                 <option value="Cuba">Cuba</option>
@@ -1166,10 +1167,19 @@
         
         // Function to populate states based on country selection
         function populateStates() {
+            console.log('populateStates called'); // Debug log
+            
             const countrySelect = document.getElementById('country');
             const stateSelect = document.getElementById('state');
             const stateContainer = document.getElementById('stateContainer');
+            
+            if (!countrySelect || !stateSelect || !stateContainer) {
+                console.error('Required elements not found:', {countrySelect, stateSelect, stateContainer});
+                return;
+            }
+            
             const selectedCountry = countrySelect.value;
+            console.log('Selected country:', selectedCountry); // Debug log
 
             // Clear existing options
             stateSelect.innerHTML = '<option value="">Select State/Province</option>';
@@ -1764,19 +1774,28 @@
                     case 'Zimbabwe':
                         states = ['Bulawayo', 'Harare', 'Manicaland', 'Mashonaland Central', 'Mashonaland East', 'Mashonaland West', 'Masvingo', 'Matabeleland North', 'Matabeleland South', 'Midlands'];
                         break;
+                    // Add alternative name for Côte d'Ivoire
+                    case 'Ivory Coast':
+                    case 'Côte d\'Ivoire':
+                        states = ['Abidjan', 'Bas-Sassandra', 'Comoé', 'Denguélé', 'Gôh-Djiboua', 'Lacs', 'Lagunes', 'Montagnes', 'Sassandra-Marahoué', 'Savanes', 'Vallée du Bandama', 'Woroba', 'Yamoussoukro', 'Zanzan'];
+                        break;
                     default:
+                        console.log('No states found for country:', selectedCountry); // Debug log
                         stateContainer.style.display = 'none';
                         return;
                 }
 
+                console.log('Found', states.length, 'states for', selectedCountry); // Debug log
                 states.forEach(stateName => {
                     const option = document.createElement('option');
                     option.value = stateName;
                     option.textContent = stateName;
                     stateSelect.appendChild(option);
                 });
+                console.log('State container shown for', selectedCountry); // Debug log
             } else {
                 stateContainer.style.display = 'none';
+                console.log('State container hidden - no country selected'); // Debug log
             }
         }
 
