@@ -108,11 +108,40 @@
 
         /* Current Time Display */
         .current-time {
-            font-size: 14px;
-            color: #6c757d;
+            font-size: 16px;
+            color: #333;
             text-align: center;
-            margin: 15px 0;
+            margin: 20px 0;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .time-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .main-time {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .date-info {
+            font-size: 14px;
+            color: #666;
             font-weight: 500;
+        }
+        
+        .timezone-info {
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
         }
 
         /* Main Heading */
@@ -456,7 +485,11 @@
     <!-- Current Time Display -->
     <div class="container">
         <div class="current-time">
-            Current time: <span id="currentTime"></span>
+            <div class="time-section">
+                <div class="main-time" id="currentTime"></div>
+                <div class="date-info" id="currentDate"></div>
+                <div class="timezone-info" id="timezoneInfo"></div>
+            </div>
         </div>
     </div>
 
@@ -1024,82 +1057,224 @@
             });
         }
         
-        // Update current time every second with location-based timezone
+        // Update current time every second with enhanced display
         function updateTime() {
             const now = new Date();
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
+            
+            // Get the user's timezone and locale automatically
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const userLocale = navigator.language || 'en-US';
+            
+            // Time options
+            const timeOptions = {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
                 hour12: true,
-                timeZoneName: 'long'
+                timeZone: userTimezone
             };
             
-            // Get the user's timezone automatically
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            
-            // Format time with user's detected timezone
-            const timeString = now.toLocaleString(navigator.language || 'en-US', {
-                ...options,
+            // Date options
+            const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
                 timeZone: userTimezone
-            });
+            };
             
-            // Display timezone information
-            const timezoneInfo = ` (${userTimezone})`;
+            // Format time and date separately
+            const timeString = now.toLocaleString(userLocale, timeOptions);
+            const dateString = now.toLocaleString(userLocale, dateOptions);
             
-            document.getElementById('currentTime').textContent = timeString + timezoneInfo;
+            // Get timezone name in short format
+            const timezoneName = now.toLocaleString(userLocale, {
+                timeZoneName: 'short',
+                timeZone: userTimezone
+            }).split(' ').pop();
+            
+            // Get country/region information
+            const region = getRegionFromTimezone(userTimezone);
+            
+            // Update the display elements
+            const currentTimeEl = document.getElementById('currentTime');
+            const currentDateEl = document.getElementById('currentDate');
+            const timezoneInfoEl = document.getElementById('timezoneInfo');
+            
+            if (currentTimeEl) currentTimeEl.textContent = timeString;
+            if (currentDateEl) currentDateEl.textContent = dateString;
+            if (timezoneInfoEl) {
+                timezoneInfoEl.textContent = `${timezoneName} • ${region} • ${userTimezone}`;
+            }
         }
         
-        // Function to get user's location and update time accordingly
-        function updateTimeWithLocation() {
+        // Function to get region from timezone
+        function getRegionFromTimezone(timezone) {
+            const regionMap = {
+                // Americas
+                'America/New_York': 'United States (Eastern)',
+                'America/Chicago': 'United States (Central)',
+                'America/Denver': 'United States (Mountain)',
+                'America/Los_Angeles': 'United States (Pacific)',
+                'America/Anchorage': 'United States (Alaska)',
+                'Pacific/Honolulu': 'United States (Hawaii)',
+                'America/Toronto': 'Canada (Eastern)',
+                'America/Vancouver': 'Canada (Pacific)',
+                'America/Mexico_City': 'Mexico',
+                'America/Sao_Paulo': 'Brazil',
+                'America/Argentina/Buenos_Aires': 'Argentina',
+                'America/Lima': 'Peru',
+                'America/Bogota': 'Colombia',
+                'America/Santiago': 'Chile',
+                
+                // Europe
+                'Europe/London': 'United Kingdom',
+                'Europe/Dublin': 'Ireland',
+                'Europe/Paris': 'France',
+                'Europe/Berlin': 'Germany',
+                'Europe/Rome': 'Italy',
+                'Europe/Madrid': 'Spain',
+                'Europe/Amsterdam': 'Netherlands',
+                'Europe/Brussels': 'Belgium',
+                'Europe/Zurich': 'Switzerland',
+                'Europe/Vienna': 'Austria',
+                'Europe/Stockholm': 'Sweden',
+                'Europe/Oslo': 'Norway',
+                'Europe/Copenhagen': 'Denmark',
+                'Europe/Helsinki': 'Finland',
+                'Europe/Warsaw': 'Poland',
+                'Europe/Prague': 'Czech Republic',
+                'Europe/Budapest': 'Hungary',
+                'Europe/Bucharest': 'Romania',
+                'Europe/Sofia': 'Bulgaria',
+                'Europe/Athens': 'Greece',
+                'Europe/Moscow': 'Russia',
+                'Europe/Kiev': 'Ukraine',
+                'Europe/Istanbul': 'Turkey',
+                
+                // Asia
+                'Asia/Tokyo': 'Japan',
+                'Asia/Shanghai': 'China',
+                'Asia/Hong_Kong': 'Hong Kong',
+                'Asia/Singapore': 'Singapore',
+                'Asia/Bangkok': 'Thailand',
+                'Asia/Jakarta': 'Indonesia',
+                'Asia/Manila': 'Philippines',
+                'Asia/Seoul': 'South Korea',
+                'Asia/Taipei': 'Taiwan',
+                'Asia/Kolkata': 'India',
+                'Asia/Karachi': 'Pakistan',
+                'Asia/Dhaka': 'Bangladesh',
+                'Asia/Dubai': 'United Arab Emirates',
+                'Asia/Riyadh': 'Saudi Arabia',
+                'Asia/Tehran': 'Iran',
+                'Asia/Baghdad': 'Iraq',
+                'Asia/Jerusalem': 'Israel',
+                
+                // Africa
+                'Africa/Cairo': 'Egypt',
+                'Africa/Lagos': 'Nigeria',
+                'Africa/Johannesburg': 'South Africa',
+                'Africa/Nairobi': 'Kenya',
+                'Africa/Casablanca': 'Morocco',
+                'Africa/Algiers': 'Algeria',
+                'Africa/Tunis': 'Tunisia',
+                
+                // Oceania
+                'Australia/Sydney': 'Australia (Eastern)',
+                'Australia/Melbourne': 'Australia (Eastern)',
+                'Australia/Perth': 'Australia (Western)',
+                'Australia/Adelaide': 'Australia (Central)',
+                'Australia/Darwin': 'Australia (Central)',
+                'Pacific/Auckland': 'New Zealand',
+                'Pacific/Fiji': 'Fiji'
+            };
+            
+            // Return mapped region or extract from timezone
+            if (regionMap[timezone]) {
+                return regionMap[timezone];
+            }
+            
+            // Fallback: extract region from timezone string
+            const parts = timezone.split('/');
+            if (parts.length >= 2) {
+                const continent = parts[0].replace(/_/g, ' ');
+                const city = parts[parts.length - 1].replace(/_/g, ' ');
+                return `${continent} (${city})`;
+            }
+            
+            return timezone;
+        }
+        
+        // Enhanced initialization function with additional browser info
+        function initializeTimeDisplay() {
+            // Update time immediately
+            updateTime();
+            
+            // Add browser and system information to timezone display
+            setTimeout(() => {
+                const timezoneInfoEl = document.getElementById('timezoneInfo');
+                if (timezoneInfoEl) {
+                    const currentText = timezoneInfoEl.textContent;
+                    const browserInfo = getBrowserInfo();
+                    timezoneInfoEl.textContent = currentText + ` • ${browserInfo}`;
+                }
+            }, 100);
+        }
+        
+        // Function to get browser information
+        function getBrowserInfo() {
+            const userAgent = navigator.userAgent;
+            let browserName = 'Unknown';
+            
+            if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
+                browserName = 'Chrome';
+            } else if (userAgent.includes('Firefox')) {
+                browserName = 'Firefox';
+            } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                browserName = 'Safari';
+            } else if (userAgent.includes('Edg')) {
+                browserName = 'Edge';
+            } else if (userAgent.includes('Opera') || userAgent.includes('OPR')) {
+                browserName = 'Opera';
+            }
+            
+            const platform = navigator.platform || 'Unknown Platform';
+            return `${browserName} on ${platform}`;
+        }
+        
+        // Function to get additional location info (optional)
+        function addLocationInfo() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
-                        // Successfully got location
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
+                        const lat = position.coords.latitude.toFixed(2);
+                        const lng = position.coords.longitude.toFixed(2);
                         
-                        // Use the detected timezone (which should match the location)
-                        updateTime();
-                        
-                        // Optional: Add location info to the time display
-                        const currentTimeElement = document.getElementById('currentTime');
-                        const locationInfo = document.createElement('div');
-                        locationInfo.style.fontSize = '12px';
-                        locationInfo.style.color = '#888';
-                        locationInfo.textContent = `Location: ${lat.toFixed(2)}, ${lng.toFixed(2)}`;
-                        
-                        // Add location info if not already added
-                        if (!document.getElementById('locationInfo')) {
-                            locationInfo.id = 'locationInfo';
-                            currentTimeElement.parentNode.appendChild(locationInfo);
+                        const timezoneInfoEl = document.getElementById('timezoneInfo');
+                        if (timezoneInfoEl && !timezoneInfoEl.textContent.includes('Coordinates')) {
+                            timezoneInfoEl.textContent += ` • Coordinates: ${lat}°, ${lng}°`;
                         }
                     },
                     function(error) {
-                        // Location access denied or failed, just use browser timezone
-                        console.log('Location access denied or failed:', error.message);
-                        updateTime(); // Fall back to timezone detection only
+                        // Silently fail if location access is denied
+                        console.log('Location access not available:', error.message);
                     },
                     {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 300000 // 5 minutes
+                        enableHighAccuracy: false,
+                        timeout: 5000,
+                        maximumAge: 600000 // 10 minutes
                     }
                 );
-            } else {
-                // Geolocation not supported, use timezone detection only
-                console.log('Geolocation is not supported by this browser.');
-                updateTime();
             }
         }
 
-        // Update time immediately with location detection and then every second
-        updateTimeWithLocation();
+        // Initialize enhanced time display and update every second
+        initializeTimeDisplay();
         setInterval(updateTime, 1000);
+        
+        // Optionally add location coordinates (with user permission)
+        setTimeout(addLocationInfo, 2000);
 
         // Note: Form now submits directly to Laravel backend - no need for JavaScript submission
 
